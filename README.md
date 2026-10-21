@@ -14,7 +14,7 @@ Each note covers one subsystem (inventory and storage, crafting, power, water, g
 
 The repository is an agent skill: `SKILL.md` tells the agent how to keep the notes up to date, how to read them and how to record new findings.
 
-Claude Code: clone it into your mod project's skills folder, or into `~/.claude/skills/` to have it in every project. The skill loads by itself when a task touches Obenseuer, and once a day it offers to update the notes (`git pull`); it never updates without your yes.
+Claude Code: clone it into your mod project's skills folder, or into `~/.claude/skills/` to have it in every project. The skill loads by itself when a task touches Obenseuer, and once a day it checks GitHub for a new version. If there is one, it shows you what changed and updates only with your yes.
 
 ```bash
 git clone https://github.com/absurdmane/obenseuer-agent-knowledge-base .claude/skills/obenseuer-agent-knowledge-base
