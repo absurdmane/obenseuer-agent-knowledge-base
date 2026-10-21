@@ -1,0 +1,14 @@
+# Never published
+.venv/
+tools/
+
+.venv/
+tools/
+
+# Editors and OS
+.vs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
