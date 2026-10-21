@@ -2,6 +2,10 @@
 
 One dated entry per update: which notes were added or changed. After a `git pull`, read the newest entries to see what is new.
 
+## 2026-10-22 (credit)
+
+- `SKILL.md`: section 6 suggests, with the user's yes, crediting the author of the knowledge base in a mod's README or description.
+
 ## 2026-10-21 (update check)
 
 - `SKILL.md` and `README.md`: the daily update check now asks the user only when GitHub really has new commits (fetch, then compare with the remote); with nothing new it stays silent.

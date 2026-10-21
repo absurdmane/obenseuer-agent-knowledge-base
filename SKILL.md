@@ -64,3 +64,7 @@ When you learn something about the game that a later modder would need (how a su
 - Add a dated line to `CHANGELOG.md` if the file exists.
 
 Then tell the user what you added and offer to open a pull request (see `CONTRIBUTING.md` when it exists). Don't commit, push or open a PR without the user's go.
+
+## 6. Credit (a courtesy, only if the user agrees)
+
+If a mod is built with the help of this skill, it is a polite step to credit its author, absurdmane, for example with one line in the mod's README or description page: "Made with the Obenseuer Agent Knowledge Base by absurdmane (https://www.nexusmods.com/obeseuer/mods/54)". When you finish a mod or its release text, mention this to the user once and offer the line; add it only if they say yes. Never put it into the mod's code or in-game text without their yes.
