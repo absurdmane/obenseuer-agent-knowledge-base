@@ -7,7 +7,7 @@ Related: [player-stats.md](player-stats.md), [item-system.md](item-system.md), [
 
 - `OS.Items.ItemConsumable` (an `Item.ItemAction`) is the consumable. There is no class `ConsumableData`: the name is only the field `LiquidStorage.consumableData`, the `ItemConsumable` of a liquid container. `Item.ItemAction.Invoke` plays `UseSound`, then calls `Inventory.OnItemConsumed`, `Inventory.ItemSpecialTriggers` and `Inventory.CheckForAddedStolenItems`.
 - `PlayerStats.UpdateValues(ItemData, ItemConsumable)` fans out to `health`, `alcohol`, `hungerAndThirst`, `mushrooms`, `tiredness`, `mentalHealth`, `addictions`, `hygiene` in that order. There is no smoking stat class: smoking lives in `PlayerStatsAddictions` (`SmokingAddiction`, `SmokingNeed`, base rate 40, change -1.25).
-- Alcohol: `PlayerStatsAlcohol`; visuals `DrunkEffect`, `PlayerDrunkControls` (shared with mushroom effects). Doctor: `DoctorController`, `DoctorPanel`, `Doctor` (`treatments` list, `fsIgnore`, from scene or prefab), `DoctorPanelSelection` and `TreatmentPhysicalHealth`, `TreatmentMentalHealth`, `TreatmentAddictions`, `TreatmentFungalDisease`, `TreatmentRadiation`. Animations: `PlayerCameraAnimations.Eat/Drink`.
+- Alcohol: `PlayerStatsAlcohol`; visuals `DrunkEffect`, `PlayerDrunkControls` (shared with mushroom effects). Doctor: `DoctorController`, `DoctorPanel`, `Doctor` (`treatments` list, `fsIgnore`, from scene or prefab), `DoctorPanelSelection` and `TreatmentPhysicalHealth`, `TreatmentMentalHealth`, `TreatmentAddictions`, `TreatmentFungalDisease`, `TreatmentRadiation`. Animations: `PlayerCameraAnimations.Eat/Drink/DrinkBottle` and the generic `PlayItemAnimation(ItemAnimation, ...)` (0.5.13), configured per action and per liquid by the `UseAnimation*` fields ([item-system.md](item-system.md)); `ItemConsumable.Invoke` hides the spawned world object with `CollectibleItem.HideWhileItemAnimationPlaying`.
 
 ## How it works [code]
 
@@ -24,4 +24,4 @@ Patch `PlayerStats.UpdateValues` (single entry for all consumption; a postfix st
 
 ## Unverified
 
-Which items use the Drink/Eat/Smoke types and animations (prefab or item data); `Doctor.treatments` assignment; names of the hard-coded item ids.
+Which items use the Drink/Eat/Smoke types (item data; `UseAnimation` is "None" on most entries and "DrinkBottle" on a few); `Doctor.treatments` assignment; names of the hard-coded item ids.

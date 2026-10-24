@@ -123,3 +123,7 @@ Moving the mouse away only deselects if the game calls `ItemInfo.Deactivate` (th
 - Global source: `WaterSourceController.globalStorage` prefers `info_water_source.globalLiquidStorage`, else the scene's entry in `globalWaterSources` (`GetCurrentSceneSource`); `AddSceneToList(title)` adds the active scene.
 - Outdoor water: `Water` (SavableScript trigger volume) handles wading, underwater fog and drowning damage (`drowndamage` 5); `setPlayerHygiene` (-1 = no effect) and `noSaunaCooling` affect hygiene. It is not plumbing.
 - No sink class exists; sinks are probably plain `LiquidStorage` objects in prefabs (runtime check needed).
+
+## Changes in 0.5.13 `[code]`
+
+Pouring liquid out of someone else's storage is theft only without permission now: in `LiquidStoragePanelUI.Update` the witnessed-theft counter and the final `Crime.CommitCrime(..., Theft)` both require `!LiquidStorage.CurrentOutputStorage.PermissionToTake` (earlier: only `StorageOwner.ID > 1` and a witness).

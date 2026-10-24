@@ -34,5 +34,5 @@ The bundles are compressed, but `aa/catalog.bin` lists asset names in plain text
 `grep -aoE '[A-Za-z0-9_ /().,&-]{2,100}\.asset' catalog.bin | sort -u`. Names only — field values need a runtime dump.
 
 - The only generator furniture is **`Mini Generator`** (`Generator : CraftingBase`, fuel-powered). No code links a generator's
-  output to other devices; `Generator.nominalOutput = 500` is only shown in the panel (`GeneratorPanel`, `showOutput`).
+  output to other devices; `Generator.nominalOutput` was replaced in build 0.5.13 by `Generator.powergeneration` (500) with `linkToGrid`, which makes the generator a producer on a power grid ([power-grid.md](power-grid.md)); the panel shows it (`GeneratorPanel`, `showOutput`, `showGridStatus`).
 - Upgrade assets: `Electricity-0-None` .. `Electricity-3-Best` (building), `Small-Electricity-0-Off/1-On` (apartment).

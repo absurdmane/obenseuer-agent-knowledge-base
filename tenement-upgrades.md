@@ -78,3 +78,7 @@ Handy getters: `TenementController.GetGeneralUpgradeLevel(GeneralUpgradeCategory
   toward targets from a tenant apartment's kitchen/water/bathroom levels. Nothing in code creates or calls it, and the author hasn't
   seen such an action in game (2026-10-16): likely a dormant feature. Residents have no needs logic of their own in code.
 - Minor game bug: `TenementUpgrade.IsUpgraded` for apartment heating compares against `heatingType` (building) instead of `heatingMethod`. [verified] Shows apartment heating as already done; a mod should compare `heatingMethod` itself.
+
+## Electricity drives a power grid (0.5.13) `[code]`
+
+Building electricity now sets the capacity of the tenement's main power grid and every resident apartment is a consumer on it (`TenementController.CheckElectricity`, `TenementResidentPower`, `UpdateUtilities`); the level still also swaps visual prefabs. Watts per level, the subscription, and the per-apartment draw are in [power-grid.md](power-grid.md). `DevTestStatus` now also starts the last electricity and basement upgrade groups.

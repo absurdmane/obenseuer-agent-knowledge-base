@@ -26,10 +26,15 @@ Related: [inventory-storage.md](inventory-storage.md), [items-recipes.md](items-
 ## Pitfalls
 
 - `ItemReference(int id, string imnamespace)` passes the still-null field, not the parameter, to the first fetch, so the namespace is ignored; `ItemReference(int id)` does not null-check `ItemDatabase.instance`.
-- `Item.Appearance` is used without a null check in `Item.Prefab`/`GetItemTitle`.
+- `Item.Appearance` is used without a null check in `Item.Prefab`; since 0.5.13 `GetItemTitle` goes through `Item.GetSkinTitle` (`Appearance?.GetSkinName(metas)`, falling back to `Title`) and `Item.GetSprite` bounds-checks `currentSkin`.
 - `ItemDatabase.Reload`/`OnEnable` re-read `Items.json` and drop runtime changes made to shared `Item` templates.
 - Patch getters rather than saved fields (`ItemStack.itemId`, `ownerId`, `refigerated`, `spoilDisabled`, `_meta`).
 
 ## Unverified
 
 Meaning of `ownerId` values 0 and 1 (probably player and none); semantics of a negative `refigerationFactor`; whether `dontDestroyAtZero` items show as spoiled in the UI.
+
+## Item use animations (0.5.13) `[code]`
+
+- `Item.ItemAction` and `ItemLiquidData` gained `UseAnimation` (`PlayerCameraAnimations.ItemAnimation`: None, Drink, DrinkBottle), `UseAnimationPrefabPath` (Resources path; empty means the used item's own prefab), `UseAnimationOffset`, `UseAnimationRotation`; `Item.CloneMeta` copies them for liquid data. `Item.GetUseAnimation` prefers the liquid's values when a liquid use has an animation; `Item.PlayUseAnimation(usedItem, meta, liquidUse)` returns false for None or without `PlayerCameraAnimations.instance`; `GetUseAnimationLength` gives the clip length. `[data]` In `Items.json` `Actions[].UseAnimation` is "None" on most entries and "DrinkBottle" on a few.
+- `CollectibleItem.InvokeActions` warns and returns while `PlayerCameraAnimations.ItemAnimationPlaying` (only Drink and DrinkBottle set the end time; `Eat` does not); it plays the animation before `InvokeAction` and, if that returns true and `amount <= 1`, hides the world object until the animation ends (`HideWhileItemAnimationPlaying`, `ShowHidden`). `SpawnItem` builds the held copy: it strips MonoBehaviours except `ItemSkin`, `CollectibleItemColors` and `ProBuilderMesh`, destroys joints, colliders, rigidbodies and audio sources, applies the skin and liquid colour from meta, and places it at the offset and rotation. `ItemInfo` blocks use while `ItemAnimationPlaying`; its cooldown is unchanged in length.

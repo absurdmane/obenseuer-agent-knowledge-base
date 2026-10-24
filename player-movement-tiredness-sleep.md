@@ -64,3 +64,7 @@ Related: [levels.md](levels.md), [tenement-upgrades.md](tenement-upgrades.md)
   25% RM 10–149, else OC 100–1049 (`InvoiceController.CreateInvoiceItem`). `InfectSMV`: `SMVProgressionRate += 0.5`,
   hygiene -10. `CoveredWithJunk`: adds random junk items. `CrazyNeighbor`: rolls 20% items / 10% money / 5% best item stolen,
   50% junk, 5% SMV +0.2, 10% hygiene -30.
+
+## Swimming (changed in 0.5.13) `[code]`
+
+`CharacterMovement.isSwimming` is now `WaterController.playerIsSwimming && CompareTag("Player")`; `BaseCharacterController` (acceleration and friction), `CharacterMovement.ApplyMovement` and `SnapToGround` use it, so non-player characters never take the swim path. `ApplySwimMovement` has buoyancy: `velocity += up x WaterController.GetPlayerSwimAcceleration(gravity) x dt` with `GetPlayerSwimAcceleration` = `gravity x (playerSubmersion / playerFloatSubmersion - 1)` (zero at the float depth, upward when deeper, downward when shallower; `playerFloatSubmersion` is a serialized range 0.72 to 1, default 0.75; `Water.OnTriggerStay` writes `playerSubmersion`, reset to 0 on exit). `WaterController.maxBreathHoldingTime`, `timeInWater` changed too (not read).

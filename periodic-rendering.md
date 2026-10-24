@@ -53,3 +53,7 @@ The Azure environment controller's probe is off (`state` not On).
 With `IndividualFaces`, small dips remain; `shadowDistance = 0` on the probes removes most of them, half resolution (64 px)
 or half far clip (500 m) change little [verified, by eye in the FPS window]. Shadows in the probe render are the main cost,
 which also fits "no hitch at night".
+
+## Changes in 0.5.13 `[code]`
+
+`ReflectionProbeUpdater.Awake` now calls `ApplySettings` (mode Realtime, refresh mode ViaScripting, `timeSlicingMode` from a serialized field with default `IndividualFaces`, `shadowDistance` from a serialized field with default 0) and then renders all probes, so the time-slicing and shadow-distance workaround described above is the updater's own default for its probes; the mod guidance is only needed for the `AzureEnvironmentController` probe. The periodic update goes through `UpdateReflectionProbes`; in play mode it starts `UpdateProbesOneByOne`, which renders each probe and waits up to 30 frames for `IsFinishedRendering` before the next (a call during a run sets `updatePending`); outside play mode it renders all at once. `SunDirection.instance` is a new static singleton.

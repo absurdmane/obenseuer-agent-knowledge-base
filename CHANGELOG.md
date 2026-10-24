@@ -2,6 +2,12 @@
 
 One dated entry per update: which notes were added or changed. After a `git pull`, read the newest entries to see what is new.
 
+## 2026-10-25 (update to build 0.5.13)
+
+- Re-checked against build 0.5.13 with a method-level comparison; corrected `power.md`, `fuel-heat.md`, `growing.md`, `crafting.md`, `skills.md`, `waste-junk.md`, `animals-collectibles.md`, `tenement-upgrades.md`, `tenement-rent.md`, `doors-interaction.md`, `saves.md`, `player-movement-tiredness-sleep.md`, `periodic-rendering.md`, `furniture-areas.md`, `water.md`, `economy.md`, `shops-internals.md`, `inventory-storage.md`, `item-system.md`, `consumables.md`, `items-recipes.md` (new exact data statistics: 929 recipes, 1240 items, recipe type Bottler).
+- New: `power-grid.md` (the power grid), `quick-slots.md`.
+- Notes that cite no changed member were not edited.
+
 ## 2026-10-24 (research pass)
 
 - New: `time-and-weather.md`, `item-system.md`, `economy.md`, `player-stats.md`, `doors-interaction.md`, `tasks-relays.md`, `npc-schedules.md`, `ui-options-input.md`, `audio-camera-graphics.md`, `minigames.md`, `animals-collectibles.md`, `map-travel-trains.md`, `achievements-boot.md`, `consumables.md`, `waste-junk.md`, `tenement-rent.md`, `mail-invoices-phone.md`, `interactable-catalog.md`, `npc-movement.md` (with behaviour-tree notes), `skills.md`, `shops-internals.md`, `smv-sauna-radiation.md`, `fuel-heat.md`, `events-catalog.md`, `equipment.md`, `lua-functions.md`, `loading-intro-death.md`; `items-recipes.md` gained exact data statistics; `animals-collectibles.md` gained movement, hunting, attacks and the bite-damage finding; `levels.md` gained level doors, spawners and portals.

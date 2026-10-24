@@ -2,7 +2,7 @@
 
 Open this file, then **one** note. Each note starts with Title / Scope / Status / Related.
 
-**Version:** notes were written against game 0.5.08. The installed build is the 15 Oct 2026 Steam update (`Assembly-CSharp.dll` dated 15 Oct 22:57); whether the version number changed is unconfirmed. A note gets an extra line only if it was re-checked against a different build.
+**Version:** the notes were first written against game 0.5.08 (`Assembly-CSharp.dll` of 15 Oct 2026). On 2026-10-25 they were re-checked against build 0.5.13 (Steam build 26179069, DLL of 24 Oct 2026) by a method-level comparison of the two builds: every note that cites a changed `Class.Member` was corrected, and new systems got notes (power-grid.md, quick-slots.md). Notes the comparison did not flag are unchanged at code level; asset values (scenes, prefabs) were not re-read. A note gets an extra line only if it was re-checked against a different build.
 
 **Status values:** `code-only` (read from decompiled code), `partly verified` (some items marked `[verified]` = seen in game), `unverified source` (not from code). Inline tags: `[code]`, `[verified]`, `[data]` (JSON/asset).
 
@@ -32,6 +32,7 @@ Open this file, then **one** note. Each note starts with Title / Scope / Status 
 | [crafting.md](crafting.md) | `CraftingBase`: recipe types, conditions, `EquipmentQuality`, `CraftingUpgrade`, ingredient matching | code-only |
 | [growing.md](growing.md) | beds/terrariums: planting, harvest, on-vine spoilage, quality/freshness | code-only |
 | [power.md](power.md) | `PowerSource`, fridges, lamps, TV, generator, outages | partly verified |
+| [power-grid.md](power-grid.md) | `PowerGrid` network (build 0.5.13): listeners, capacity and cuts, tenement main grid, resident load, billing, meter | code-only |
 | [water.md](water.md) | `LiquidStorage`, global source, taps as recipes, water items, shower, toilet, hygiene, water supply levels | partly verified |
 | [time-and-weather.md](time-and-weather.md) | `TimeOfDayAzure` clock, events and timers, day counter, waiting/sleeping, weather | code-only |
 | [tenement-upgrades.md](tenement-upgrades.md) | building/apartment upgrade levels (water, electricity, heating), storage of state | partly verified |
@@ -50,6 +51,7 @@ Open this file, then **one** note. Each note starts with Title / Scope / Status 
 | [tasks-relays.md](tasks-relays.md) | Lua bridge to dialogue, `TaskController`, recipe learning, notes, `Relay` and `logic_*` scene glue | code-only |
 | [npc-schedules.md](npc-schedules.md) | NPC data files, `Schedule`/`Activity`, residents, relationships, `CharacterSpawner` | code-only |
 | [ui-options-input.md](ui-options-input.md) | HUD and panels, settings files, key bindings, notifications, menu localization | code-only |
+| [quick-slots.md](quick-slots.md) | quick-slot bar (build 0.5.13): owner API, input, quick plant | code-only |
 | [audio-camera-graphics.md](audio-camera-graphics.md) | soundscape and mixer, radio, camera, graphics quality, post-processing, light dimming | code-only |
 | [minigames.md](minigames.md) | card tables, slot machine, coin pusher, gambling stats, `Keypad`, computers | code-only |
 | [animals-collectibles.md](animals-collectibles.md) | animals (state, food, breeding, followers), collectible spawners, resource nodes, ambient fish | code-only |

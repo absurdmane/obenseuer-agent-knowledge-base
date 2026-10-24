@@ -1,8 +1,8 @@
 # Electricity and device power
 
-Scope: `PowerSource`, fridges (`Storage.powerOff`), lamps, TV/radio, generator, outage behaviour, dormant `FurnitureStats` budget.
-Status: code-only; some lamp/fridge facts [verified] inline
-Related: [crafting.md](crafting.md), [tenement-upgrades.md](tenement-upgrades.md), [water.md](water.md)
+Scope: `PowerSource`, fridges (`Storage.powerOff`), lamps, TV/radio, generator, outage behaviour. The power grid added in build 0.5.13 is in [power-grid.md](power-grid.md).
+Status: partly verified (lamp and fridge facts [verified] inline); statements re-checked against build 0.5.13
+Related: [power-grid.md](power-grid.md), [fuel-heat.md](fuel-heat.md), [crafting.md](crafting.md), [tenement-upgrades.md](tenement-upgrades.md), [water.md](water.md)
 
 ## PowerSource — power for machines and devices
 
@@ -12,7 +12,7 @@ Related: [crafting.md](crafting.md), [tenement-upgrades.md](tenement-upgrades.md
 - `PowerInput` (**saved**) — "the device gets electricity from somewhere". Defaults to `true`.
 - `Powered` getter = `RequiresFuel ? _Fuel.active : PowerInput`. All checks go through it and `IsPowered()`.
 - `OnPowerOn/OnPowerOff/UpdateState` fire `ActOnPowered/ActonUnPowered` and the `onPowered/onUnPowered` Relays.
-- `powerConsumption` exists but is "not used anywhere yet". `FurnitureManager.NetPower` is not a stub: `TurnDeviceOn/TurnDeviceOff` hold a complete balancing algorithm, dormant only because no prefab uses `FurnitureStats`.
+- `powerConsumption` (not saved, default 60 since 0.5.13) is the device's draw on its power grid: `PowerBalance => -powerConsumption` (see [power-grid.md](power-grid.md)).
 
 Owners of `_Power`:
 - `CraftingBase` (base of all workstations: `manufacturing`, `manufacturingProcess`, `Generator`, `Growing`, ...).
@@ -25,6 +25,7 @@ Unpowered machines in the world (e.g. the drill press in the Dekula A attic) mos
 **Patch point for "no electricity — doesn't work"**: postfix on `PowerSource.get_Powered`: if `Type == Electricity && !RequiresFuel`,
 then `result &= <room has electricity>`. The saved `PowerInput` stays untouched. When the electricity level changes,
 call `UpdateState`/`OnPowerOn/Out` on the room's devices, otherwise UI/sound won't refresh.
+Since 0.5.13 the game gates electric non-fuel devices by a power grid ([power-grid.md](power-grid.md)); prefer a grid (or its `GridEnabled`) to a custom postfix, because the game now also writes `PowerInput`.
 
 ## Fridges — Storage
 
@@ -39,8 +40,8 @@ call `UpdateState`/`OnPowerOn/Out` on the room's devices, otherwise UI/sound won
   Styrofoam Cooler: `Styrofoam Box` | 0.33; **Kalle Ketku/Trade: `Custom` | 1.0** (a trader storage; the only refrigerated storage whose category name is not a cooling category).
   The worn Cooler Bag storage (scene object, not in the bundles) is 0.5 [verified, runtime dump]. No other prefab Storage has `refigerationFactor > 0`; 'Custom' with factor 0 is the common default for non-storage devices (stoves, machines).
   So a category-name check misses Kalle Ketku and misreads nothing else; checking `refigerationFactor > 0` (the base value) catches all, and the dump titles (Freezer, Fridge) are `Storage.title`, not the category.
-- `Storage.powerOff` (public) + the `RefigerationFactor` getter returns 0 when `powerOff`.
-- `Storage.TogglePower(bool on)` — turns cooling off/on (`ToggleRefigeration`). Only called from `Storage` itself.
+- `Storage.powerOff` (public) + the `RefigerationFactor` getter returns 0 when `powerOff` or, since 0.5.13, when the fridge's own switch is off (`PowerSwitchedOn`: `showPowerButton` set and its `powerGridListener` off).
+- `Storage.TogglePower(bool on)` turns cooling off/on (`ToggleRefigeration`) and calls `RefreshPowerState`; only called from `Storage` itself. The public `Storage.SetPowerSwitch(bool)` toggles the fridge's grid listener (relays `onPowerOn/onPowerOff` fire on state change, forced after load).
 - Spoilage: `ItemPerishabledata.CountPerishingTime(storageRefigeration)`.
 
 - **`powerOff` is saved** (public, no `[fsIgnore]`). Setting it via `TogglePower` would leave fridges off after the mod is removed.
@@ -73,6 +74,7 @@ so on a power change call it again for the room's fridges. Don't touch `powerOff
 - `LightTurnOffOn` — switchable light with on/off materials (`turnLightOn/turnLightOff`, `on` is saved). `turnLightOff` swaps
   `lightMeshList[*].sharedMaterials[meshIndex]` to `lightOffMaterial` and deactivates `lights`; `turnLightOn` puts `LocalOnMaterial`
   (a copy of `lightOnMaterial`) back. Lamps without it have no "off" material: dim their emission.
+  Since 0.5.13 it has a `noPower` gate: when set, `Awake`/`turnLightOn` call `DisableLightAndChangeMaterial` instead and `onTurnOn` fires only when powered; new members `TogglePower(bool)`, `SetEmissionMultiplier`, `RefreshMaterials`, `GetControlledLights`, `LightMeshes`; `PowerLightFlicker` ([power-grid.md](power-grid.md)) drives flicker through `SetEmissionMultiplier`.
 - [verified] `LightTurnOffOn` swaps materials only on its `lightMeshList`. The Wall Light (`wall_lamp_001_toggle`) has two bulb meshes with
   `wall_lamp_001_on` (`Sphere.008`, `Sphere.011`); one stays lit when the lamp is off or unpowered. A mod can dim every glowing mesh under the lamp.
 - [verified] Decoration light garlands (`Decoration Lights Medium(Clone)` / `decoration_lights_001`, also 002/003 variants) have no
@@ -101,11 +103,11 @@ so on a power change call it again for the room's fridges. Don't touch `powerOff
   waits while `TimeOfDayAzure.updateTimeDisabled`) → `Fuel.LoadedGame()` → `_Power.UpdateState(true)`. No `OnPowerOn` fires.
   To react to "the generator runs again", postfix `Fuel.LoadedGame`.
 
-`Generator : CraftingBase`, `nominalOutput = 500`. No code connects a generator to other devices — probably done via Relays in the scene.
+`Generator : CraftingBase`. `nominalOutput` is gone; `Generator.powergeneration` (500, not saved) with `linkToGrid`/`showGridStatus` makes it a producer on a power grid ([power-grid.md](power-grid.md)); without `linkToGrid` nothing connects it to other devices (the scene may do it with relays).
 
 ## Devices with and without a power notion `[code]`
 
-- No power notion at all (no field, no check): `Radio` (only `RadioEnabled/CurrentState`), `InteractableComputer`, `AlarmClock`, `Clock`, `Phone`, `DecorationLights`, `LavaLamp`, `GradientLamp`, `TimedLights`, `CandleLight`. Anything a mod wants to do for them must be done from outside.
+- No power notion at all (no field, no check): `Radio` (only `RadioEnabled/CurrentState`), `InteractableComputer`, `AlarmClock`, `Clock`, `Phone`, `DecorationLights`, `LavaLamp`, `GradientLamp` (an `on` switch and `Toggle(bool)` since 0.5.13, still off the grid), `TimedLights`, `CandleLight`. Anything a mod wants to do for them must be done from outside.
 - `TelevisionNoise` — has the `No Power` state (see below).
 - `Keypad.noPower` (protected bool, default false) — set only by `Keypad.ChangePowerState(bool state)` (`noPower = !state`); while true the use text is "No Power" ("Blocked" for `RotaryLock`) and `Use()` only plays the warning effect.
   Nothing in code calls it: it is driven from scene data (`Relay`/`output` events call methods by name, `Outputs.output.OnTrigger` / `outputCustomEvent`), i.e. by the game's own breaker/relay wiring.
@@ -113,12 +115,12 @@ so on a power change call it again for the room's fridges. Don't touch `powerOff
 - `FloodGateControl.powerOff` (protected) — set by `TurnOn()` / `TurnOff()` (relay-called); off blocks the open/close buttons and makes the lights red/dark.
 - `BatteryPowerSource : SavableScript` (needs a `Storage` on the same object) — drains `fuelDrainPerHour` from the storage's items (liquid / ammo / perishable meta per `fuelType`) over game time (`TimeOfDayAzure.SecondsPassed`), fires `RelaysON` / `RelaysOFF`; `powering` and `drainEnabled` are saved; `ToggleDrain(bool)` is relay-called. A separate mechanism from `PowerSource`.
 - `NaturalLightSourceChecker.UpdateModifiers(bool _powered)` — the growing-bed "has sun" test is `powered || window natural light || no obstruction above (35 m ray)`; `_powered` is passed in by the bed when its lamp is on (see growing.md).
-- `FurniturePower` (building system) only forwards the owning `PowerSource` fuel cleanup; it carries no power logic.
+- `FurniturePower` was removed in 0.5.13; `PowerSource.furniturePower` is replaced by `powerGrid`.
 
 - [data] Inventory of which furniture / built-in devices carry which of these components: not published here; regenerate with `electronics.py` + `electronics_report.py` (see [asset-bundles.md](asset-bundles.md)).
   Findings: of 654 Furniture assets, 94 carry a `_Power`-owning CraftingBase (manufacturing / manufacturingProcess / Growing / Generator / Dishwasher), 5 TelevisionNoise (Big Television, Flat Screen Television, Old Computer, Old Television, Table Fan), 2 Radio (Cheap Radio, Small Radio), 4 Clock/AlarmClock, 1 Phone, 1 Keypad (Safe), 4 BatteryPowerSource (Biogas Reactor, Brick Furnace, Charger, Gas Furnace), 6 refrigerated;
   no furniture has `InteractableComputer`, `FurnitureStats`, `DecorationLights`, `Elevator` or `FloodGateControl` (those, if present, are scene objects in other levels, not scanned beyond `level4`). Some `Combustion` devices have `PowerInput=True` and some `Electricity` devices `PowerInput=False` (Kitchen Tools, Meat Grinder): the flag, not the type, decides.
-  Every `FurnitureManager` has `NetPower` (0.0 in all upgrade prefabs): the dormant budget.
+  Since 0.5.13 `FurnitureManager.NetPower`, `StatsObjects` and `TurnDeviceOn/Off` are gone (`FurnitureManager.powerGrid` replaces them); old saves carried the serialized `NetPower`, whether they still load cleanly is unverified.
 
 ## Losing power mid-work `[code]`
 
@@ -128,6 +130,7 @@ so on a power change call it again for the room's fridges. Don't touch `powerOff
   `OnSetPowerOff`/`PowerOutAndManuActive` — verify in game.
 - Fuel running out: `Fuel.OnFuelConsumeStopped` → `active = false` → `OnStateChange(false)` → `PowerSource.FuelStateChange` →
   `OnPowerOff` → the owner's `OnPowerOut()` (e.g. `Generator.OnPowerOut`). Hook there to react to a generator stopping.
+- Since 0.5.13 `Fuel` fires this stop path only when switched off while the counter runs; after a load `CraftingBase.TryStartFuelIfOn`/`StartFuelIfOn` restart the counter for a device that is on, not broken and not saved as running.
 
 ## Trait icons in station panels `[code]`
 
@@ -141,22 +144,20 @@ so on a power change call it again for the room's fridges. Don't touch `powerOff
 - Storage panel (fridges): `StoragePanelUI.UpdateStoragePanelUI` has a single `modifier` slot — snowflake "Refrigerator"/"Freezer"
   by `ToolTip.RefigerationFactorToString(RefigerationFactor)`; with `RefigerationFactor == 0` the icon is hidden.
 
-## FurnitureStats — dormant power budget `[code]`
+## FurnitureStats (obsolete) `[code]`
 
-`FurnitureStats` (SavableScript): `isOn`, `netPowerOn` (<0 consumer, >0 producer), `isActive`, `setPower(bool)`, `OutputPower/OutputNoPower`,
-`BlackoutSound/RestoreSound`. `FurnitureManager.TurnDeviceOn/Off(FurnitureStats)` balance `NetPower` per area and switch consumers off
-on deficit; registered in `FurnitureManager.StatsObjects`. Looks like an early power-grid system; whether any prefab uses it — runtime.
+Since 0.5.13 `FurnitureStats` is an empty `[Obsolete]` class (no members, no relays); references in old prefabs and saves load but do nothing. The budget it fed was replaced by the power grid ([power-grid.md](power-grid.md)).
 Room membership without parenting: `FurnitureManager.ContainsFurnitureGameObject(go)` (searches `AllFurnitures`).
 
 ## How a device learns about power `[code]`
 
 - `PowerSource.Powered` is `_Fuel.active` when `RequiresFuel`, else the saved flag `PowerInput` (default true). `CraftingBase.PoweredAndActive` = `AlwaysOn` or (`On` and `_Power.IsPowered()`). `AlwaysOn` devices ignore every power event and `Toggle`.
-- Nothing polls power per frame. Events fire only when code calls `PowerSource.ToggleInput`, `FuelStateChange`, `TogglePower`/`Toggle`, `UpdateState` (after `LoadDelay`), `SetPowerSourceStatus` or `Init`. A changed `Powered` result does not notify the device by itself.
+- Nothing polls power per frame. Events fire only when code calls `PowerSource.ToggleInput`, `FuelStateChange`, `TogglePower`/`Toggle`, `UpdateState` (after `LoadDelay`), `SetPowerSourceStatus` or `Init`. A changed `Powered` result does not notify the device by itself, except through the grid since 0.5.13: `PowerSource` implements `IPowerGridListener`, and `OnGridPowerOff/On` call `ToggleInput`, which fires the device hooks.
 - `CraftingBase.Start` sets `_Power.ActOnPowered = PowerOn` and `ActonUnPowered = PowerOut`, so `PowerSource.OnPowerOn/OnPowerOff` reach the virtual `CraftingBase.OnPowerOn/OnPowerOut` (overridden by `manufacturing`, `manufacturingProcess`, `Generator`, `Growing`). `Start` also calls `OnPowerOut` for an unpowered device, so hooks there must be idempotent.
 - `PowerSource.ToggleInput(on)` acts only for non-fuel sources: it fires `OnPowerOff` if it was powered, `OnPowerOn` if it was not, then sets `PowerInput`. `CraftingBase.SetPowerSourceStatus(on)` calls `ToggleInput(false)` when powered and `on == false`, otherwise writes `PowerInput` with no event. Nothing in code calls it; scene relays do (also `Keypad.ChangePowerState`, `Elevator.TogglePower`, `FloodGateControl.TurnOn/TurnOff`, `BatteryPowerSource.ToggleDrain`).
 - `OnPowerOn`/`UpdateState` do not re-check the source; callers must.
 - Mid-craft: `manufacturing` pauses its timer when `!_Power.IsPowered()` at load; `manufacturingProcess` refuses to start when unpowered.
-- Tenement electricity (`TenementApartment.currentElectricity`, `TenementGeneral.currentElectricity`) only swaps visual prefabs (`TenementApartmentPrefabs.UpdateElectricity`); no code links it to any `PowerSource`. `CharacterRent.Electricity` is rent data, not a device gate.
-- No breaker, fuse box or mains class exists in code (`BlackoutTrigger` is a player sleep/blackout event). Whether scene breakers call the relay methods above is unchecked.
+- Tenement electricity: `TenementController.CheckElectricity` and `TenementResidentPower` now feed a power grid ([power-grid.md](power-grid.md)); the level still swaps visual prefabs (`TenementApartmentPrefabs.UpdateElectricity`) and `CharacterRent.Electricity` is rent data, not a device gate.
+- Since 0.5.13 a grid exists in code (`PowerGrid`, `PowerMeter`, `PowerGridsController`); which scene objects carry them is asset data. `BlackoutTrigger` remains a player sleep/blackout event.
 
-Mod guidance: to gate a device by room power, postfix `PowerSource.get_Powered` (electric, non-fuel only) or `CraftingBase.PoweredAndActive`, then call the public `CraftingBase.PowerOut()`/`PowerOn()` on each device after a change; `PowerSource.UpdateState` only runs relays and sounds, not the device hooks. Do not write `PowerInput` for a room effect: it is saved, and the flag (not `Type`) decides (some combustion devices have `true`, some electric ones `false`).
+Mod guidance: to gate a device by room power, postfix `PowerSource.get_Powered` (electric, non-fuel only) or `CraftingBase.PoweredAndActive`, then call the public `CraftingBase.PowerOut()`/`PowerOn()` on each device after a change; `PowerSource.UpdateState` only runs relays and sounds, not the device hooks. Do not write `PowerInput` for a room effect: it is saved, and the flag (not `Type`) decides (some combustion devices have `true`, some electric ones `false`). Since 0.5.13 the game writes it too (`PowerSource.JoinGrid`/`SyncWithGrid` set it from the grid), so a flag you write is overwritten.

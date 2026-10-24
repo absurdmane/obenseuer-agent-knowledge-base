@@ -11,7 +11,7 @@ Related: [player-stats.md](player-stats.md), [crafting.md](crafting.md), [police
 ## Formulas [code]
 
 - `PlayerStats.SkillSuccess(type, failChance, dontIncrease, factor, crafttime)`: `value` = crafttime/1800 when given, else 1, clamped 0.05 to 5; success gain = value x factor x 0.1 x ff, failure gain = value x factor x 0.05 x ff, with ff = failChance (0.01 when 0). Every gain funnels into `PlayerStats.IncreaseSkill(type, amount, notification)`: false for None or at `maxLevel`, amount clamped to 0..`maxLevel`, popup when the integer level changes, achievement at max. Hook `IncreaseSkill` to catch all gains.
-- `PlayerStats.SkillQuality` = skill x 0.2 x recipe skill factor x sobriety x (1 - fail) x equipment x quality factor.
+- `PlayerStats.SkillQuality` = `GetSkillWithEffects` (0.5.13; earlier `GetSkill`) x 0.2 x recipe skill factor x sobriety x (1 - fail) x equipment x quality factor.
 
 ## Gain and use per skill [code]
 

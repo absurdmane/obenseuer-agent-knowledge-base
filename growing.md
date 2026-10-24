@@ -1,7 +1,7 @@
 # Growing: planting, harvest, spoilage
 
 Scope: `Growing` beds/terrariums: planting flow, harvest, on-vine spoilage, bush lifetime, sun condition, produce quality and freshness.
-Status: code-only
+Status: code-only; re-checked against build 0.5.13
 Related: [crafting.md](crafting.md), [inventory-storage.md](inventory-storage.md), [items-recipes.md](items-recipes.md)
 
 ## Classes
@@ -28,7 +28,7 @@ Related: [crafting.md](crafting.md), [inventory-storage.md](inventory-storage.md
 Per plant: skill check `PlayerStats.SkillSuccess(...)` — on failure the plant gets `RottingOverride = true` and yield ×0.33.
 Input item quality is **not** passed to the plant (only `currentSkins`, animal age data) — planting the worst items is free.
 
-- `CraftingBase.RemoveItems` takes items **only from `InputOutputStorage`**, in **slot order** (first matching slot first).
+- Since 0.5.13 `CraftingBase.RemoveItems` reads `items ?? InputSlots` (earlier: only `InputOutputStorage`), in **slot order** (first matching slot first). `CraftingBase.InputSlots` is the device storage plus `ExtraInputSlots`; `Growing.ExtraInputSlots` adds all player slots (`Inventory.AllSlots(ignoreBackpack: false, ignoreCharacterSlots: true)`) only while the bed's panel is open for this device or during quick-plant.
 - Each seed and its produce are **separate recipes** with the same output (e.g. Turnip ← `Turnip Seeds` and Turnip ← `Turnip`),
   so the UI shows two buttons per plant. Recipe types: `Grow`, `GrowMushrooms`, `GrowVines`, `GrowAquatic` (60 recipes, 44 outputs).
 - `RecipeButton` already has a hover mode: `togglePress == false` → info shown on `OnPointerEnter`, hidden on exit.
@@ -36,17 +36,15 @@ Input item quality is **not** passed to the plant (only `currentSkins`, animal a
 
 ## Harvest
 
-- `grow.Interact()` on the plant root: if `Uproot()` (nothing to pick, not grown or dead) → hold-to-uproot; else `Harvest()` →
-  `HarvestExternal(out destroy)`: if any `visibleGrownItems` are ready → **picks all of them** (each `GrowItem.GetItem()` adds to the
-  player's inventory) and returns; otherwise yields `seedItem` + `grownItems` (× `Age/FullGrownAge`) and destroys/resets the plant.
-  `grow.Harvest()` puts the stacks into the player's inventory via `ItemOperations.AddItems` — **no free-space check**.
-- Hold-to-uproot: `grow.Uproot()` is true for a dead plant (`growSpoil.spoiled`) or a not-yet-grown one with no fruit → `Interact` uses
-  `HoldToUseController.instance.StartUpdate(Harvest)` (hint "Hold press to uproot (dead plant)" from `GetUseMessage`).
-- `GrowItem.Interact()` — pick one fruit; checks `Inventory.instance.InventoryIsNotFull(...)` first ("Inventory full" use text).
+- `grow.Interact()` on the plant root (0.5.13): returns early unless `IsWithinHarvestReach()`; holds to uproot only when `Uproot() && !IsDead()`, otherwise calls `Harvest()` -> `HarvestExternal(out destroy, out full, hasSpace)`: if any `visibleGrownItems` are ready it **picks all of them** (each `GrowItem.GetItem()` adds to the player's inventory) and returns; otherwise it yields `seedItem` + `grownItems` (x `Age/FullGrownAge`) and removes the plant (`RemoveAfterHarvest`; a manual harvest uses `RemoveWithAnimation`, with `PlantMoveAnimation` swaying plants in on planting and lifting them out on harvest).
+  `grow.Harvest()` still passes a `hasSpace` that always returns true for single-produce plants (**no free-space check** there); fruit is checked per `GrowItem.InventoryHasSpace()` ("Inventory full" use text).
+- Dead and unfinished plants: `grow.Uproot()` is true for a dead plant (`growSpoil.spoiled`) or a not-yet-grown one with no fruit. Since 0.5.13 a dead plant is no longer hold-to-uproot: `Interact` calls `Harvest()` and the use text is "Uproot dead plant" (no "Hold press"); a not-yet-grown plant with no fruit still uses `HoldToUseController.instance.StartUpdate(Harvest)`. `grow.UprootDeadPlant` was renamed `UprootItems`; dead-plant items are taken only if they fit, otherwise the plant stays.
+- `GrowItem.Interact()`: pick one fruit; returns early unless within use distance (`InteractObjects.IsWithinUseDistance`); checks `GrowItem.InventoryHasSpace()` first ("Inventory full" use text). `GrowItem.PlayHarvestAnimation` spawns a copy with `ModelPreview.CreateCopy` and runs `PlantMoveAnimation.Harvest`.
 - UI cells: `GrowingPanel.UpdateItemsInProgress` fills `ProgressSlot`s, and on non-`ManualHarvest` devices calls `AddActiveGrowing`.
   `ProgressSlot.OnPointerClick` → `Growing.Harvest(GameObject)` harvests one plant into the device's storage.
 - `Growing.Harvest()` (the `GrowingPanelUI.harvestButton`, non-`ManualHarvest`; that button is not visible in game) — harvests every spot into the device's `OutputStorage ?? InputOutputStorage`
   (`CreateItems`) — items land in whatever slots are free, mixed with seeds.
+  Since 0.5.13 `Growing.HasSpaceFor` checks `OutputStorage ?? InputOutputStorage` plus the player's slots first; without room nothing is taken and `Inventory.inventoryPanelUI.InventoryFull()` is called.
 
 ## Spoilage on the vine (multi-harvest "already half rotten")
 
@@ -57,9 +55,7 @@ perishing in the inventory (`integrityLossPerHour`). At 100 % the fruit just **v
 `startGrowAgain`. With `dontRemoveWhenSpoiled` it stays hanging and picking it gives `spoiledItem`.
 Default `spoilTime = 14400` s (prefab values unknown — runtime dump). So "half rotten at harvest" is this timer, by design or not.
 Side bug: a spoiled fruit gives `spoiledItem` × `seedItemAmount` (not `spoiledItemAmount`) and only if `seedItemAmount > 0`.
-Bug [code]: on vanish `UpdateSpoilTime` runs `ResetGrow()` (which clears `spoiled`) and **then** sets `spoiled = true`. `spoiled` is a
-private unsaved field, so the regrown fruit counts as rotten (`Spoiled()` true) until the game is reloaded: picking it gives rot or nothing.
-A postfix that clears the flag when `!dontRemoveWhenSpoiled` fixes it.
+Bug, fixed in 0.5.13 [code]: in 0.5.13 `GrowItem.UpdateSpoilTime` sets `spoiled = true` in an `else` branch after `ResetGrow()`, so a regrown fruit is no longer flagged rotten (verify in game). In earlier builds `ResetGrow()` cleared `spoiled` and it was then set to true; `spoiled` is a private unsaved field, so the regrown fruit counted as rotten (`Spoiled()` true) until the game was reloaded.
 
 ## Bush lifetime (when multi-harvest plants stop fruiting) [code]
 
@@ -119,3 +115,9 @@ Something else resets the factor to 1 via `SetSpeedFactor(1f)`: `Crime`, `manufa
 - Harvest all on a bed: iterate `Growing.GrowingSlots`, `grow.HarvestExternal` / `GrowItem.GetItem` per plant.
 - Free inventory space: `Inventory.instance.InventoryIsNotFull(itemId, owner, amount, meta)`.
 - Add with overflow to the ground: `ItemOperations.AddItemsAndDropRemaining(item, owner, slot, meta, amount)`; plain drop: `ItemOperations.DropItem(...)`.
+
+## Quick plant, repeat harvest, variation (0.5.13) `[code]`
+
+- `Growing` implements `IQuickSlotTarget` ([quick-slots.md](quick-slots.md)): `UpdateQuickSlot(RaycastHit)` shows the quick-slot bar with the recipes that pass `CanQuickPlant` and `RecipeInfoUI.CheckSkillSoft` (skill-locked ones are disabled with a text). The planting spot (`GetQuickPlantSpot`) is an empty spot within 2.5 m of the player and 1 m of the aim point, or directly under the player when `quickPlantUnderPlayer` is set. `QuickPlant` calls `StartGrow(recipe, 1, spot, items)` (a new overload with a target spot and the chosen stacks first) and blocks primary use for 1 s; `Growing.OnManualHarvest()` stamps a time that blocks quick-plant for 1 s. Holding Interact on a `Growing`, `grow` or `GrowItem` target calls `InteractObjects.RepeatHarvest` after 0.4 s, which calls `Growing.RepeatHarvest(point)` every 0.2 s within about 0.5 m.
+- The skill gain per planted spot uses a literal 5 instead of the batch amount (`plantSkillGainMultiplier` = 5 is declared but unused at that call). The plant sound falls back to `RandomAudioLibrary.instance.plant`.
+- `grow.FullGrownAgeVariation` (not saved) varies the grow time in `PlantExternal` and `InitializePreview` (the random state is saved and restored); `GrowItemAgeVariation` gives each plant a `growItemAgeOffset` added to its fruit's `fullGrownAgeFinal`; `noGrowItemRandomization` skips the 50% random hiding of fruit. `grow.InitializePreview` builds the ghost copy for the quick-plant preview. `GrowItem.GivesItems` (`itemAmount > 0`) gates item grants in `GetItem`.

@@ -32,7 +32,7 @@ Attachable add-on connected to a nearby `CraftingBase` (`MatchesRequirements`, `
 
 ## Ingredients and storage [code]
 
-- A station reads only its own `InputOutputStorage.storageSlots` (`StorageSlot[]`): `CountItems` (private) → `GetRecipeMultiplier`
+- Since 0.5.13 a station reads `InputSlots` (its own `InputOutputStorage.storageSlots` plus `ExtraInputSlots`, which for a growing bed include the player's slots while its panel is open; earlier: only `storageSlots`) (`StorageSlot[]`): `CountItems` (private) → `GetRecipeMultiplier`
   (max batch); `CompareRecipeToItems(recipe, items = null)` → whether a recipe lists (all items present, or for a known recipe any
   of them); `RemoveItems` → consumption, quality from the slots, liquids drained from containers (the empty container stays in the slot).
 - `RemoveItems(..., dontRemoveItems: true)` is a dry run, but its `usedItemReferences` list is never filled.
@@ -50,7 +50,7 @@ Moved to [inventory-storage.md](inventory-storage.md) (the `InputOutputStorage.s
 
 ## Recipes and the production flow `[code+data]`
 
-- `RecipeDatabase` loads `Recipes.json` (UTF-16, wrapper `{"Recipes": [...]}`, `Type` is a `RecipeType` enum name). `RecipeType` values: Basic, Oven, Stove, Mashing, Fermenter, Distillery, WaterSource, Grinder, Machining, ChemicalLab, Woodworking, Microwave, CoffeeMaker, PaperWork, Grow*, Misc, SludgeTank, Engineering, Electronics, Inventory, Furnace, Printer3D, Assembly, Compost, Kitchen, Malting, Sewing, Crusher, Loom, Anvil, ChemicalRefinery, Press. Rough recipe counts `[data]`: Stove ~108, Oven ~73, ChemicalLab 32, Kitchen 12.
+- `RecipeDatabase` loads `Recipes.json` (UTF-16, wrapper `{"Recipes": [...]}`, `Type` is a `RecipeType` enum name). `RecipeType` values: Basic, Oven, Stove, Mashing, Fermenter, Distillery, WaterSource, Grinder, Machining, ChemicalLab, Woodworking, Microwave, CoffeeMaker, PaperWork, Grow*, Misc, SludgeTank, Engineering, Electronics, Inventory, Furnace, Printer3D, Assembly, Compost, Kitchen, Malting, Sewing, Crusher, Loom, Anvil, ChemicalRefinery, Press, Bottler (added in 0.5.13: 30 recipes, no C# consumer, handled by the generic data path). Rough recipe counts `[data]`: Stove ~108, Oven ~73, ChemicalLab 32, Kitchen 12.
 - Recipe fields: `input`/`output`/`outputFail` (`ItemReference` to amount), `ProcessTime`, `FailChance` (code default 0.2), `RelevantSkill`, `MinimumSkill`, `HardMinimumSkill`, `SkillFactor`, `SkillGainFactor`, `RequiredConditions`, `ExcludingConditions`, `RecipeTags`, `metaSettings`, `variantItemCategory/Amount`, `keepItemOwnerOnFail`, `disableJunkSpawn`, `Appearance`, `RecipeRequired`, `Meta`. The runtime dictionaries `Recipe.Input/Output/OutputFail` are `fsIgnore` and stay null until `Recipe.SetItems()` runs (`manufacturing.LoadDelayProcess` does it).
 - `manufacturing` (batch, timer-based): `Craft()` returns unless `PoweredAndActive` and `CraftingInProgress < AllowSimultaneous`; `CraftingBase.RemoveItems` consumes inputs at once and returns returned containers plus `CraftingInputData` (average ingredient quality, `processTimeFactor`); a positive `GetProcessTime` enqueues a `CraftInProgress` on a `TimeOfDayAzure.Timer`, otherwise it finishes instantly; `CraftDelayed` -> `OnCraftDone` -> `CreateItems`. `Craft()` also calls `RecipeController.AddRecipe(recipe, learned: true)`. `OnCraftDone` runs under try/catch, so exceptions there are swallowed.
 - `manufacturingProcess` (continuous): `ActiveRecipe` is recipe plus batch multiplier, passed to `RemoveItems` in `StartProcess`; a `Stage` enum drives it; output quality is stored at start.
@@ -60,3 +60,9 @@ Moved to [inventory-storage.md](inventory-storage.md) (the `InputOutputStorage.s
 - Not found in code: classes named `ChemicalLab`, `Stove`, `Oven` or `Kitchen`; those stations are presumably `manufacturing` prefabs with a recipe list in prefab data (unverified).
 
 Mod guidance: postfix `Recipe.GetProcessTime` or `CraftingBase.EquipmentQualityWithUpgrades` for speed; `Recipe.CurrentFailChance` is the global fail hook; a postfix on `CraftingBase.CreateItems` sees `inputData` and `hasBeenDoneInSeconds`. `RemoveItems` writes skin meta into the shared `Recipe.Meta`, so that state persists across crafts.
+
+## Changes in 0.5.13 `[code]`
+
+- `CraftingBase.InputSlots` is cached per frame (cleared by `ClearInputSlotsCache()`, on panel close and by `UpdateAllSlots`); `CountItems`, `CompareRecipeToItems(items: null)`, `CraftingBaseHelperFunctions` and `RemoveItems` read it; `CraftingBase.InputHasItem(...)` is new and adds extra-slot amounts for the recipe UI.
+- Broken state: `CraftingBase.broken`, `Break()`; `PoweredAndActive` is false while broken and `Toggle(true)` is refused (see [power-grid.md](power-grid.md)). `CraftingBase.OnDestroy` and the finalizer call `_Power.OnDestroy()` (which also runs `_Fuel.OnDestroy()` and leaves the grid).
+- Recipe UI: `RecipeIngredientUI.CreateRecipeIngredientUI` has a new last parameter `object[] meta` and shows skin titles and sprites (`Item.GetSkinTitle`); `RecipeInfoUI.GetDisplayMeta(recipe, item)` passes `recipe.Meta` only for outputs.
