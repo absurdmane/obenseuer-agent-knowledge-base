@@ -2,6 +2,11 @@
 
 One dated entry per update: which notes were added or changed. After a `git pull`, read the newest entries to see what is new.
 
+## 2026-10-24 (research pass)
+
+- New: `time-and-weather.md`, `item-system.md`, `economy.md`, `player-stats.md`, `doors-interaction.md`, `tasks-relays.md`, `npc-schedules.md`, `ui-options-input.md`, `audio-camera-graphics.md`, `minigames.md`, `animals-collectibles.md`, `map-travel-trains.md`, `achievements-boot.md`, `consumables.md`, `waste-junk.md`, `tenement-rent.md`, `mail-invoices-phone.md`, `interactable-catalog.md`, `npc-movement.md` (with behaviour-tree notes), `skills.md`, `shops-internals.md`, `smv-sauna-radiation.md`, `fuel-heat.md`, `events-catalog.md`, `equipment.md`, `lua-functions.md`, `loading-intro-death.md`; `items-recipes.md` gained exact data statistics; `animals-collectibles.md` gained movement, hunting, attacks and the bite-damage finding; `levels.md` gained level doors, spawners and portals.
+- Added: `water.md` (shower, toilet, hygiene, supply levels), `power.md` (how a device learns about power; corrected the `FurnitureManager.NetPower` remark), `crafting.md` (recipe fields, production flow), `saves.md` (save/load order, autosave, versioning).
+
 ## 2026-10-22 (credit)
 
 - `SKILL.md`: section 6 suggests, with the user's yes, crediting the author of the knowledge base in a mod's README or description.

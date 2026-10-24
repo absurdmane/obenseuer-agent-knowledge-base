@@ -47,7 +47,7 @@ Related: [levels.md](levels.md), [tenement-upgrades.md](tenement-upgrades.md)
 - Wakes up when: tiredness reaches 0 (only if blood alcohol < 1), the alarm fires, or after 1 h of sleep a need blocks it
   (`CanSleep`: bleeding > 33, near-death health, hunger > 90, thirst > 90; mental health/tiredness > 90 only for waiting).
   `CantSleepReasonDialogue` is shown as the wake-up reason.
-- During sleep: hunger slowed by `SleepHungerThristRateFactor`, hygiene and addictions don't progress, mental health
+- During sleep: hunger slowed by `SleepHungerThristRateFactor`, addictions don't progress (hygiene still falls at half rate, see player-stats.md), mental health
   (`currentStatus`, higher = worse) drops by `mentalHealthChangeRate`/h.
 - Bed quality: `Sleep.quality - PlayerStatsMentalHealth.expectationOffset*10` → `ChangeMentalHealthTarget(-q)` and a new
   expectation level. Label in `Sleep.GetTitle()`: Torturous < -20 < Aching < -10 < Uncomfortable < -3.33 < Okay < 3.33 < Pleasant

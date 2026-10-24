@@ -19,16 +19,21 @@ Open this file, then **one** note. Each note starts with Title / Scope / Status 
 | [inventory-storage.md](inventory-storage.md) | `Inventory`/`SlotController`/`Slot`/`Storage` core: which methods see which slots, `playerSlot`, quick move, sorting, `storageSlots` swap pitfall, storage panel buttons | code-only |
 | [backpack.md](backpack.md) | worn backpack: items, contents, how it opens, differences from main slots | code-only |
 | [containers-theft.md](containers-theft.md) | opening a container, taking items, what counts as theft, slot icons | partly verified |
+| [player-stats.md](player-stats.md) | `PlayerStats` parts: hunger, thirst, bowel, bladder, health, mental health, hygiene, alcohol, addictions, mushrooms, conditions, skills | code-only |
 | [player-movement-tiredness-sleep.md](player-movement-tiredness-sleep.md) | walk/run/crouch, tiredness, sleep debt, coffee, beds, pass-out, alarm clock | code-only |
 
 ## Building and devices
 
 | Note | Covers | Status |
 |---|---|---|
+| [item-system.md](item-system.md) | `Item`, `ItemStack`, `ItemDatabase`, item meta types, perishing, stolen/owner marking, `Items.json` shape | code-only |
+| [economy.md](economy.md) | `Money`, shops, traders, bank, loans, rent, difficulty price scaling | code-only |
+| [doors-interaction.md](doors-interaction.md) | furniture placing/taking, `Door`/`Lock`, keys, the interaction picker | code-only |
 | [crafting.md](crafting.md) | `CraftingBase`: recipe types, conditions, `EquipmentQuality`, `CraftingUpgrade`, ingredient matching | code-only |
 | [growing.md](growing.md) | beds/terrariums: planting, harvest, on-vine spoilage, quality/freshness | code-only |
 | [power.md](power.md) | `PowerSource`, fridges, lamps, TV, generator, outages | partly verified |
-| [water.md](water.md) | `LiquidStorage`, global source, taps as recipes, water items | partly verified |
+| [water.md](water.md) | `LiquidStorage`, global source, taps as recipes, water items, shower, toilet, hygiene, water supply levels | partly verified |
+| [time-and-weather.md](time-and-weather.md) | `TimeOfDayAzure` clock, events and timers, day counter, waiting/sleeping, weather | code-only |
 | [tenement-upgrades.md](tenement-upgrades.md) | building/apartment upgrade levels (water, electricity, heating), storage of state | partly verified |
 | [furniture-areas.md](furniture-areas.md) | `Furniture`, building areas, which room an object is in; addressable asset names, generator | code-only |
 | [police-crime.md](police-crime.md) | `Act_Police` states/routes/speeds, crime records, `Witness`, trespassing areas, stolen-goods marking, arrest and search flow | code-only |
@@ -39,9 +44,31 @@ Open this file, then **one** note. Each note starts with Title / Scope / Status 
 
 | Note | Covers | Status |
 |---|---|---|
-| [levels.md](levels.md) | `SaveController.ChangeLevel`, entrypoints, where the player spawns | partly verified |
-| [saves.md](saves.md) | save folder layout, copying, reading a save file; mod guidance: per-save mod data | code-only |
+| [levels.md](levels.md) | `SaveController.ChangeLevel`, entrypoints, where the player spawns; level doors, preload, spawners, portals | partly verified |
+| [saves.md](saves.md) | save folder layout, copying, reading a save file; save/load hook order, autosave, versioning; mod guidance: per-save mod data | code-only |
 | [main-menu.md](main-menu.md) | title-screen menu: world-space sign canvas, 6 buttons, hard-coded gamepad navigation | partly verified |
+| [tasks-relays.md](tasks-relays.md) | Lua bridge to dialogue, `TaskController`, recipe learning, notes, `Relay` and `logic_*` scene glue | code-only |
+| [npc-schedules.md](npc-schedules.md) | NPC data files, `Schedule`/`Activity`, residents, relationships, `CharacterSpawner` | code-only |
+| [ui-options-input.md](ui-options-input.md) | HUD and panels, settings files, key bindings, notifications, menu localization | code-only |
+| [audio-camera-graphics.md](audio-camera-graphics.md) | soundscape and mixer, radio, camera, graphics quality, post-processing, light dimming | code-only |
+| [minigames.md](minigames.md) | card tables, slot machine, coin pusher, gambling stats, `Keypad`, computers | code-only |
+| [animals-collectibles.md](animals-collectibles.md) | animals (state, food, breeding, followers), collectible spawners, resource nodes, ambient fish | code-only |
+| [map-travel-trains.md](map-travel-trains.md) | map and landmarks, fast travel entry, `Teleport`, trains, NPC pathfinding graphs | code-only |
+| [achievements-boot.md](achievements-boot.md) | achievements and Steam calls, version handling, build switches, boot order, hidden console commands | code-only |
+| [consumables.md](consumables.md) | `ItemConsumable` to stat mapping, smoking and alcohol, auto-consume, doctor treatments | code-only |
+| [waste-junk.md](waste-junk.md) | junk sources, `FurnitureTrash`, janitor actions, apartment cleaning timer | code-only |
+| [tenement-rent.md](tenement-rent.md) | renting, move-in and eviction flow, resident requirements, contractor caps, prefab swapping | code-only |
+| [mail-invoices-phone.md](mail-invoices-phone.md) | mail and parcel delivery, random mail, invoices and expiry, phone calls, legal services | code-only |
+| [interactable-catalog.md](interactable-catalog.md) | one line per `Interactable` subclass: what Interact does, key fields | code-only |
+| [npc-movement.md](npc-movement.md) | NPC path search, speeds, cross-scene walking, door waypoints, spawn/despawn, stuck handling | code-only |
+| [skills.md](skills.md) | skill enum, gain formula, where each skill is gained and used, character panel | code-only |
+| [shops-internals.md](shops-internals.md) | furniture shop, market checkout, vending machines, tickets, restock and saving | code-only |
+| [smv-sauna-radiation.md](smv-sauna-radiation.md) | sauna overheat, radiation dose, duck, SMV progression and the wasteland effect, face protection | code-only |
+| [fuel-heat.md](fuel-heat.md) | `Fuel` burn time and ash, candle lantern, sauna temperature, what heating levels do | code-only |
+| [events-catalog.md](events-catalog.md) | static events usable as hook points (save, mail, tasks, inventory, crime, UI, weather) | code-only |
+| [equipment.md](equipment.md) | equip slots and routing, hand items, flashlight, face protection, worn-item effects | code-only |
+| [lua-functions.md](lua-functions.md) | every Lua function the game registers for dialogue scripts: owner, arguments, effect | code-only |
+| [loading-intro-death.md](loading-intro-death.md) | loading screen, hint overlay, event cameras, blackout and wake-up, sleep event names, death entry | code-only |
 | [setting.md](setting.md) | the game world in brief, for naming and flavour | unverified source |
 
 ## Lore — FULL SPOILERS (these notes tell the whole story of the game)
@@ -61,7 +88,7 @@ Digested by language-model agents from the game's dialogue database and texts, s
 
 | Note | Covers | Status |
 |---|---|---|
-| [items-recipes.md](items-recipes.md) | `Items.json` / `Recipes.json` shape and encodings, recipe conditions in use | code + data |
+| [items-recipes.md](items-recipes.md) | `Items.json` / `Recipes.json` shape and encodings, recipe conditions in use, exact counts per type, skill and category | code + data |
 
 ## Tooling (ours, not game knowledge)
 
@@ -74,10 +101,7 @@ Digested by language-model agents from the game's dialogue database and texts, s
 ## Known gaps (ordered by use for current/planned mods)
 
 1. Generic `Storage` API in detail (`EnterExternally` flow, `storageSlots` save format, `onUpdate`) — only partly in inventory-storage.md and containers-theft.md.
-2. Re-check every note against the 15.10 build; confirm the game version number first.
-3. Game UI framework: `GameUIController` panels, `Slot`/`ItemData` drag-drop, `ItemInfoPanel`, notifications, gamepad `InventoryNavigationHandler`.
-4. Time and weather (`TimeOfDayAzure`, day/night, temperature) for heating/cold and outage ideas.
-5. Needs and status effects beyond sleep (`PlayerStats`, hunger/thirst, illness, SMV) and item actions (`ItemConsumable`, ...).
-6. Trade, money and prices (`Trade`, `Money`, `MarketShop`); NPCs, crime, witnesses (`Crime`, `Witness`).
-7. Dialogue and quests (Lua function registry).
-8. Runtime-only data: use offline asset reading (asset-bundles.md) for prefab values first; a runtime dump only for scene objects and live state.
+2. Re-check every note against the newest game build; the first research pass (2026-10-24) was written against the 15.10 decompile, and a later update has since been released.
+3. Gamepad navigation (`UINavigationCore`, `InventoryNavigationHandler`), `ItemInfoPanel` internals.
+4. Scene-level facts: which prefab or scene holds a value (`Doctor.treatments`, keypad codes, `MailController.delay`, spawner settings). Use offline asset reading (asset-bundles.md) first; a runtime dump only for live state.
+5. Animal prefab values (bite, hunt chance, spawn timers) and the runtime bite check described in animals-collectibles.md.

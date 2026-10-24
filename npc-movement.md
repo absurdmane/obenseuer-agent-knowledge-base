@@ -1,0 +1,32 @@
+# NPC movement, level changes, spawn and despawn
+Scope: how an NPC walks (path search, speeds, animation), cross-scene walking, door and level-change waypoints, spawn and despawn on level change, stuck handling. Schedules, data and activities are in npc-schedules.md, the waypoint graphs in map-travel-trains.md, police and robber movement logic in police-crime.md and combat-npcs.md. The A* cost function and activity-specific speeds are not covered.
+Status: code-only
+Related: [npc-schedules.md](npc-schedules.md), [map-travel-trains.md](map-travel-trains.md), [levels.md](levels.md), [doors-interaction.md](doors-interaction.md), [police-crime.md](police-crime.md)
+
+## Where it lives [code]
+
+- `NPC/NPCController` (one per NPC object): activity loop (`Update`), path following (`UpdatePathfinding`, `SetPath`, `SetTargetPosition`, `SetFollowDestination`, `SetChaseDestination`, `MoveToOtherLevel`), scripted walks (`MoveToPosition`), stuck detection (`CheckStuck`). `NPC/NPCPathfinding`: waypoint-graph A* (`SearchForPath`, inter-scene `SearchForPathToOtherMap`). `NPC/OpenSewerNPCMovementAnimation`: animator and `RichAI.maxSpeed`. `NPC/NPCSceneUtilities` (inter-scene transit), `NPC/NPCSpawnUtilities.ChangeNPCLevel`. Top level: `NPCManager` (scene registry of `NPCInfo`, `ActiveScene`), `NPCInfo` (scene-side SavableScript). `NPC/Waypoint`, `Waypoint_Door`, `Waypoint_LevelChange`.
+
+## How it works [code]
+
+- Three movement modes: (1) path to a point or node, `SetTargetPosition`/`SetTargetNode` -> `NPCPathfinding.SearchForPath` -> `SetPath`; (2) follow or chase, which sets `ai.destination` on the A* agent directly (`SetChaseDestination` first checks `PathUtilities.IsPathPossible` and falls back to mode 1); (3) scripted `MoveToPosition`, which lerps at `richAI.maxSpeed` with `canMove` off and teleports to the end, used by door waypoint chains.
+- `NPCPathfinding.SearchForPath` copies `WaypointGraph.instance.waypointMap`, adds temporary start and end connections and runs on `Task.Run` while the game plays, then calls back on the main thread. The `Path` has one node per waypoint hop; `Path.ArriveAtTarget` advances the stage (a waypoint node calls `Waypoint.EnterWaypointChain`), after the last node `FinishPath`.
+- Speeds: `RichAI.maxSpeed` SlowWalk 1.5, FastWalk 2.5, Run 5.0, set by `SetMovementSpeed` from the serialized `movementType` in `Awake` (a direct `maxSpeed` write is overridden by it and by the next `MoveToPositionCO`). Animator: bool `OnGround`, float `Forward` (speed relative to Run x 1.6, damped 0.1 s), float `Turn` (damped 0.1 s); `NPCInfo` sets bools `Sleeping` and `Dead`.
+- Cross-scene walking: `NPCData.state.activePath` is an `InterScenePath` (nodes with level, entrypoints, distance); `interSceneProgress` (0..1) advances each `NPCDirector.DeltaSeconds` tick at 1.5 units per game second; at 1 the NPC moves to the next stage or is placed in the target scene. A transit older than 3600 game seconds completes instantly (a long path looks like a teleport). `HandleNPCChangeScene` starts a transit when the scheduled activity's scene differs from `currentScene`.
+- Door level change: `UpdatePathToOtherMap` walks the NPC to the `Waypoint_LevelChange` whose door entrypoint matches; `Waypoint_LevelChange` disables moving, `LinkedDoor.OpenDoorNPC`, then `NPCSpawnUtilities.ChangeNPCLevel(Data, LinkedDoor.OtherLevel)`; `ChangeNPCState` clears `activePath`, sets `currentScene` and destroys the old controller object. It waits while the NPC is in dialogue (`WaitForConversationEnd`). The arrival side `OnSpawn` opens the door and spawns the NPC at the waypoint, or spawns directly without a door.
+- Spawn and despawn: `NPCManager.StartDelay` runs after each level load (waits for `updateTimeDisabled` and six frames): NPCs whose `currentScene` is the active scene are moved (`MoveToCurrentLocation`) or `Spawn()`ed; NPCs of other scenes with a live `NPCInfo` are deactivated (`SetActive(false)`, not destroyed) unless `preventDestroy`. `ChangeNPCLevel` does nothing while in transit; otherwise it places the NPC at the entrypoint (or the level-change waypoint's `OnSpawn`). `NPCInfo.Start`/`OnDestroy` register and unregister with `NPCManager`. `FindNpcById` prefers an active object.
+- Stuck handling: if the rounded `remainingDistance` stays the same for over 5 s, `CheckStuck` calls `Data.state.CurrentActivity.OnStuck(repathStuckCounter > 5)`. `Activity.OnStuck` stops an interruptible activity; `Act_Robber`, `Act_Police`, `Act_Wander` and `Act_Tenement` force-release after a repeat.
+
+## Mod guidance
+
+Hooks: `NPCController.SetPath`/`SetTargetPosition`/`SetFollowDestination` (route changes; `SetPath` returns early while a path is active and `interrupt` is false, or inside a waypoint chain); `NPCSpawnUtilities.ChangeNPCLevel` and `NPCSceneUtilities.UpdateNPCTransition` (cross-scene behaviour). A controller destroyed in a level change never runs queued callbacks. `NPCDirector.DeltaSeconds` swallows exceptions, so check the log when an NPC stops between scenes.
+
+## Unverified
+
+Exact methods at the top of `Waypoint_LevelChange`; activity-specific speeds (police, robber, patrol); the fallback in `NPCManager.ActiveScene`.
+
+## Behaviour trees (Behavior Designer) `[code]`
+
+- Game-written tasks: only `Day` (Conditional: success when the current weekday equals its plain int `Weekday`) and `Timetable` (Conditional: success when the current hour is strictly between `StartHour` and `StopHour`; `Weekday` (float), `randomTimer`, `StartHourMax`, `StopHourMax` are declared but unused). Both are time gates reading `TimeOfDayAzure`, use plain fields rather than shared variables, so a tree's blackboard cannot drive them, and patching their `OnUpdate` changes every tree that uses them.
+- The rest is the library compiled into the game assembly: `Basic.*` (Unity component wrappers), `Movement` and `Movement.AstarPathfindingProject` (patrol, follow, flee, wander, seek, ...), and `DialugeSystem` (14 dialogue and quest tasks: `StartConversation`, `StopConversation`, `IsConversationActive`, `Bark`, `StartSequence`, `StopSequence`, `Set/GetQuestState`, `Set/GetQuestEntryState`, `RunLua`, `IsLuaTrue`).
+- No game code creates or assigns a `BehaviorTree` or external tree to an NPC or animal, so assignment lives in prefabs and scenes (asset data). The only game classes touching trees are `BehaviorSelection` and `AstarBehaviorSelection`, which look like demo harnesses (nothing references them). The NPC schedule system is not built on the tree library.

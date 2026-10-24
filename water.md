@@ -105,3 +105,21 @@ Moving the mouse away only deselects if the game calls `ItemInfo.Deactivate` (th
 | 15980 | Heavy Water | — | 0.9 | special (SNW) |
 
 `14880 Water` is an **item group** (`Meta[0].itemGroup`): recipes ask for "Water" and accept any member, with per-member `qualityFactor` / `addSMV`.
+
+## Shower, toilet, hygiene `[code]`
+
+- `InteractableShower` (Interactable): `outputStorage` (`LiquidStorage`), saved `showerOn`/`waterOn`, `owner`. Interact toggles `TurnOn`/`TurnOff` even when `owner.ID > 1`; only `UpdateUseMessage` shows "Owned".
+- While on it subscribes to `TimeOfDayAzure.SecondsPassed`. A finite `outputStorage` (`Capacity >= 0`) drains 0.1 L per second and the shower stops when empty; an infinite source drains nothing. It saves `savedTimeAndDay` and catches up elapsed time on load only if it was on.
+- Hygiene per minute: default 25; non-water liquids -25; liquid 12980 +5; a non-zero `consumableData.Hygiene` overrides it. The shower only sets values: the player's hygiene changes in `SaunaCooling.PlayerCooling` (`ImproveHygienePerMinute / 60` per second) while the player is inside its trigger and `On` is set. Patch there to change shower hygiene.
+- `Toilet` (`InteractableChair`); `ToiletBucket` is an empty subclass (the difference is in the prefab). `OnSitEnd` sets `Toilet.currentToilet` and calls `PlayerStatsHungerAndThirst.EmptyToToilet`; `OnStopSitStart` plays the flush and clears it. `EmptyToToilet` dereferences `Toilet.currentToilet.Bucket` without a null check (its callers look guarded).
+- Paper: `Toilet.UseToiletPaper` takes item 17260 from any `Storage` in `connectedStorages`; `ToiletPaperHolder` links toilets within 1 m. Without paper it falls back to inventory item 17260, then item 16 (adds Bleeding +1.5). Excrement and used paper go to `Toilet.Bucket` when set.
+- Hygiene penalties as coded: bowel without paper -25; female using a urinal -20 (-30 with paper); other bladder cases -5 without paper, 0 with paper. Relieving yourself with no toilet: health -30, mental health +25, hygiene -100, excrement spawned on the floor. Excrement is the SMV type with a chance tied to `mushrooms.SMVProgression` once it is 5 or more.
+- `Toilet.IsBucketFull` returns false unless the player is sitting, so the "bucket full" warning only fires when not sitting.
+- `TrespassingAreaBathroom.AreaDisabled` depends on `PlayerIdentity` gender (Male, Female, Any; Any never trespasses).
+
+## Water supply levels `[code]`
+
+- `TenementGeneral.currentWater` {None, Dirty, Good, Best}; `TenementApartment.currentWater` {Off, Dirty, Good, Best}. They only select visual prefabs (`waterShit`/`waterGood`/`waterBest`). No valve, pipe or shutoff code exists beyond these enums; nothing links them to a tap or `LiquidStorage`.
+- Global source: `WaterSourceController.globalStorage` prefers `info_water_source.globalLiquidStorage`, else the scene's entry in `globalWaterSources` (`GetCurrentSceneSource`); `AddSceneToList(title)` adds the active scene.
+- Outdoor water: `Water` (SavableScript trigger volume) handles wading, underwater fog and drowning damage (`drowndamage` 5); `setPlayerHygiene` (-1 = no effect) and `noSaunaCooling` affect hygiene. It is not plumbing.
+- No sink class exists; sinks are probably plain `LiquidStorage` objects in prefabs (runtime check needed).
