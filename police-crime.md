@@ -98,3 +98,7 @@ NPCs run one `NPC.Activity` at a time; police use `Act_Police` (not BehaviorDesi
 ## Not read / open
 
 - Restoration of `originalSpeed` after a chase (where `Act_Police` returns to walking), `Act_Police.OnPlayerArrested`, `Prison` flow, the police dialogue Lua (fine/bribe options), `Node`/`NodeGroup` scene names, whether apartment interiors have waypoints and `Node`s. These need a scene look (offline asset reading) or runtime dump.
+
+## Changes in 0.5.17 `[code]`
+
+`Crime.CalculateBribe` no longer caches the amount or caps it at the OC balance: quality is cached once in the saved `bribeQuality` (`latestBribe` is gone), clamped to [0.24, 1.2], and the amount is `CountCrimes` x (1.2 / quality). `Crime.TryToBribe` takes `(int)CalculateBribe()`; 0 clears the crime, a passed skill check with `CheckMoney` true buys it. `ClearCrime` resets `triedBribe` and `bribeQuality`. `NPCController.SetTargetNode` changed (not read).

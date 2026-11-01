@@ -2,6 +2,11 @@
 
 One dated entry per update: which notes were added or changed. After a `git pull`, read the newest entries to see what is new.
 
+## 2026-11-01 (update to build 0.5.17)
+
+- Re-checked against build 0.5.17 with the method-level comparison (265 changed types); corrected `power-grid.md` (price and amount settings, billing, cut and restore, idle draw), `power.md`, `economy.md`, `skills.md`, `police-crime.md`, `growing.md`, `crafting.md`, `quick-slots.md`, `animals-collectibles.md`, `inventory-storage.md`, `backpack.md`, `item-system.md`, `doors-interaction.md`, `saves.md`, `tasks-relays.md`, `npc-movement.md`, `player-movement-tiredness-sleep.md`, `water.md`, `ui-options-input.md`, `tenement-upgrades.md`; `power-grid.md` also gained the scene and prefab wiring (which areas, lamps, TVs and switches are on the grid).
+- Data: item field `PlacementType`, four red grape items, grape and petri dish recipes, Crusher recipes rebalanced.
+
 ## 2026-10-25 (update to build 0.5.13)
 
 - Re-checked against build 0.5.13 with a method-level comparison; corrected `power.md`, `fuel-heat.md`, `growing.md`, `crafting.md`, `skills.md`, `waste-junk.md`, `animals-collectibles.md`, `tenement-upgrades.md`, `tenement-rent.md`, `doors-interaction.md`, `saves.md`, `player-movement-tiredness-sleep.md`, `periodic-rendering.md`, `furniture-areas.md`, `water.md`, `economy.md`, `shops-internals.md`, `inventory-storage.md`, `item-system.md`, `consumables.md`, `items-recipes.md` (new exact data statistics: 929 recipes, 1240 items, recipe type Bottler).

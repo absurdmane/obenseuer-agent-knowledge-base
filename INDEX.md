@@ -2,7 +2,7 @@
 
 Open this file, then **one** note. Each note starts with Title / Scope / Status / Related.
 
-**Version:** the notes were first written against game 0.5.08 (`Assembly-CSharp.dll` of 15 Oct 2026). On 2026-10-25 they were re-checked against build 0.5.13 (Steam build 26179069, DLL of 24 Oct 2026) by a method-level comparison of the two builds: every note that cites a changed `Class.Member` was corrected, and new systems got notes (power-grid.md, quick-slots.md). Notes the comparison did not flag are unchanged at code level; asset values (scenes, prefabs) were not re-read. A note gets an extra line only if it was re-checked against a different build.
+**Version:** the notes were first written against game 0.5.08 (`Assembly-CSharp.dll` of 15 Oct 2026). On 2026-10-25 they were re-checked against build 0.5.13, and on 2026-11-01 against 0.5.17 (Steam build 26349752, DLL of 1 Nov 2026) by the same comparison (Steam build 26179069, DLL of 24 Oct 2026) by a method-level comparison of the two builds: every note that cites a changed `Class.Member` was corrected, and new systems got notes (power-grid.md, quick-slots.md). Notes the comparison did not flag are unchanged at code level; asset values (scenes, prefabs) were not re-read. A note gets an extra line only if it was re-checked against a different build.
 
 **Status values:** `code-only` (read from decompiled code), `partly verified` (some items marked `[verified]` = seen in game), `unverified source` (not from code). Inline tags: `[code]`, `[verified]`, `[data]` (JSON/asset).
 

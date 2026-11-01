@@ -29,3 +29,7 @@ Related: [furniture-areas.md](furniture-areas.md), [police-crime.md](police-crim
 ## Unverified
 
 Whether a placed `FurniturePlaceable` is parented to its `FurnitureManager`; where the lock check sits in `Door.Open`; who sets `keyItem` (prefab or scene data); whether a key is consumed on any path.
+
+## Changes in 0.5.17 `[code]`
+
+`InteractObjects.GetInteractable`: a `grow` reaches `Growing.UpdateQuickSlot` only when `grow.IsJustPlanted()`; the `GrowItem` case was removed. `Door.GetClosedDoorway(out center, out normal)` is new (spawn pose or local transform plus the box collider centre) and `Door.ignoreLightZones` was added. Placement types are described in item-system.md.

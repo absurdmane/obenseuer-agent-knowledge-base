@@ -127,3 +127,7 @@ Moving the mouse away only deselects if the game calls `ItemInfo.Deactivate` (th
 ## Changes in 0.5.13 `[code]`
 
 Pouring liquid out of someone else's storage is theft only without permission now: in `LiquidStoragePanelUI.Update` the witnessed-theft counter and the final `Crime.CommitCrime(..., Theft)` both require `!LiquidStorage.CurrentOutputStorage.PermissionToTake` (earlier: only `StorageOwner.ID > 1` and a witness).
+
+## Changes in 0.5.17 `[code]`
+
+`LiquidStoragePanelUI`: fill and unfill amounts are capped at the output storage's liquid amount (unless infinite) and rounded down with `ItemLiquidData.RoundDownToStep`; a zero amount calls `StopFilling`; the full-container branch is gone; selecting another slot resets `fillingItem`/`unfillingItem` on the storages.

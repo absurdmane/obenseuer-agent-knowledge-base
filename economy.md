@@ -18,7 +18,7 @@ Related: [items-recipes.md](items-recipes.md), [item-system.md](item-system.md),
 - Shop prices: buy = base x `buyPercent`/100, sell = base x `sellPercent`/100 (both currencies). Buying needs `PlayerHasMoney` in both; selling needs `CheckIfShopHasMoney` and `CanSell`. Trader cash is rerolled by `MoneyRestock` (scaled by `traderWealth`) on day change (`restockEveryDay`) or when a random timer between `minRestockingTime` and `maxRestockingTime` runs out (unit unconfirmed).
 - Since 0.5.13 trader wealth can be Infinite (`DefaultMultiplier.Infinite`, selectable only for `traderWealth`; `DifficultyInfo.GetTraderWealth` returns the input unchanged): `DifficultyController.InfiniteTraderWealth` makes `BaseShop.CheckIfShopHasOc/Rm` true, `AddBuyMoney`/`RemoveSellMoney` no-ops, the `Trade.CurrentMoney` setter a no-op and `Trade.CheckIfTraderHasMoney` true (`MoneyRestock` under the flag was not checked). `Trade.CanSell` gained an optional `checkMoney` (default true; `TradeSpecial.CanSell` too).
 - `Trade.GetItemPrice` (static) = `Item.GetItemSalePrice` x base price x stolen factor (owner > 0), optionally minus container and liquid values, at least 1. Theft value of collectable furniture = `PriceRM + 0.1 x PriceOC`.
-- Interest: `Money.CurrentTime` (private, runs on day change) multiplies balances by `(1+Interest)^(days/7)` and debt by `(1+DebtInterest)^(days/7)`; `days/7` is integer division, so gaps under 7 days give nothing.
+- Interest: `Money.CurrentTime` (private, runs on day change) multiplies balances by `(1+Interest)^(days/7)` and debt by `(1+DebtInterest)^(days/7)`; since 0.5.17 `days/7` is a float division, so partial weeks grow balances and debt (before: integer division, nothing for gaps under 7 days).
 - Debt repayment: each rent cycle with `CurrentDebt > 0` creates a 7-day downpayment invoice of `MonthlyDownpayment` divided by the payments per month (Daily 30, Weekly 4, Biweekly 2, Monthly 1), capped at the debt.
 - Rent schedule `DifficultyInfo.GetRentPayment`: Daily at 19:00 or later on day change; Weekly and Biweekly share one check (weekday 6, 19:00+), so Biweekly does not look like a two-week gap; Monthly checks day 0; non-daily modes skip if the last payment was within 2 days. Collateral (`GetRentCollateral`): Daily 0.25x, Weekly 1x, Biweekly 2x, Monthly 3x monthly rent (`TenementController`, invoice "Rent collateral", 14 days).
 - Loans: `Bank.CalculateMaximumLoan` = min(supply x 10, max loan, `TenementFinancingRatio` x raw tenement income x `PaymentTimemonths`) per currency, minus `CurrentDebt`, then converted (about 10 OC per RM).
@@ -30,3 +30,7 @@ Postfix `Furniture.PriceOC/PriceRM` and `Item.Value` to scale all prices; the pu
 ## Unverified
 
 Preset values per difficulty (asset data); unit of the restock timer; whether Biweekly rent is meant to differ from Weekly; whether `Money.Account` is used.
+
+## Changes in 0.5.17 `[code]`
+
+Electricity costs are difficulty settings now (`electricityPrice`, `electricityAmount`, see [power-grid.md](power-grid.md)); the rent-paid step also pays each apartment's utilities (`TenementController.PayUtilities`). The bribe formula changed (see skills.md).

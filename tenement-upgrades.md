@@ -82,3 +82,7 @@ Handy getters: `TenementController.GetGeneralUpgradeLevel(GeneralUpgradeCategory
 ## Electricity drives a power grid (0.5.13) `[code]`
 
 Building electricity now sets the capacity of the tenement's main power grid and every resident apartment is a consumer on it (`TenementController.CheckElectricity`, `TenementResidentPower`, `UpdateUtilities`); the level still also swaps visual prefabs. Watts per level, the subscription, and the per-apartment draw are in [power-grid.md](power-grid.md). `DevTestStatus` now also starts the last electricity and basement upgrade groups.
+
+## Changes in 0.5.17 `[code]`
+
+Upgrading a room can now take furniture out of it: `TenementUpgradeCleanupArea` ([power-grid.md](power-grid.md) describes it); `TenementGeneralPrefabInfo.RefreshConnections()` is new and the active state per object is OR-ed over all connections. `TenementController.GetGeneralUpgradeName/GetApartmentUpgradeName` and `...Progress` map categories to display names and `TenementUpgradeProgress`.

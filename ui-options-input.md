@@ -27,3 +27,7 @@ Related: [main-menu.md](main-menu.md), [inventory-storage.md](inventory-storage.
 ## Unverified
 
 Whether `Controls.json` and `Quality.json` are written on every change or only on apply; `PlayerStatsUI` colour rules.
+
+## Changes in 0.5.17 `[code]`
+
+New key binding "Use Item Secondary" (default Z; `KeyBindingsSave.useItemSecondary`, in the key-binding menu and `ResetKey`). On a controller "Head Use" is a hold of at least 0.5 s (`ControllerHeadUseHoldDuration`; display text "Hold <key>"), a short tap is `GetAuxiliaryReloadDown`. New difficulty settings for electricity are described in [power-grid.md](power-grid.md).

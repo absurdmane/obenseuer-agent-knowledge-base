@@ -17,3 +17,7 @@ Related: [growing.md](growing.md), [doors-interaction.md](doors-interaction.md),
 ## Unverified
 
 `ModelPreview` and `FaceBlendShapeFollower` internals; whether any prefab other than growing beds uses the bar.
+
+## Changes in 0.5.17 `[code]`
+
+`QuickSlotBar.Show` has a new optional `repeatName`: with `repeatInterval > 0` the hint reads "(Hold - <name>)"; `Growing.UpdateQuickSlot` passes "Keep planting". A `grow` reaches the bar only while `grow.IsJustPlanted()` (the `GrowItem` case was dropped). The input block now falls back to `BuildingSystemMenu.instance.menuIsOpen` where it used `DialogueController.DialogueActive`. A new secondary item use key ("Use Item Secondary", default Z) exists; on a controller "Head Use" is a hold of at least 0.5 s and a short tap is `GetAuxiliaryReloadDown`.

@@ -68,3 +68,7 @@ Related: [levels.md](levels.md), [tenement-upgrades.md](tenement-upgrades.md)
 ## Swimming (changed in 0.5.13) `[code]`
 
 `CharacterMovement.isSwimming` is now `WaterController.playerIsSwimming && CompareTag("Player")`; `BaseCharacterController` (acceleration and friction), `CharacterMovement.ApplyMovement` and `SnapToGround` use it, so non-player characters never take the swim path. `ApplySwimMovement` has buoyancy: `velocity += up x WaterController.GetPlayerSwimAcceleration(gravity) x dt` with `GetPlayerSwimAcceleration` = `gravity x (playerSubmersion / playerFloatSubmersion - 1)` (zero at the float depth, upward when deeper, downward when shallower; `playerFloatSubmersion` is a serialized range 0.72 to 1, default 0.75; `Water.OnTriggerStay` writes `playerSubmersion`, reset to 0 on exit). `WaterController.maxBreathHoldingTime`, `timeInWater` changed too (not read).
+
+## Changes in 0.5.17 `[code]`
+
+`Water` has new `TryGetSurfaceHeight`: the surface is the highest top of this water's enabled trigger colliders (cached in `waterVolumes`) that intersect the other collider's bounds, and `OnTriggerEnter`/`OnTriggerStay` skip objects that intersect none; it replaces `transform.position.y`. Urine and toilet sounds follow the player (`PlayMisc(... parentToParent: true)`).

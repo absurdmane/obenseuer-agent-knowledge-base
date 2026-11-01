@@ -28,3 +28,7 @@ Related: [crafting.md](crafting.md), [items-recipes.md](items-recipes.md), [save
 ## Unverified
 
 Whether 17340 is the only notebook item; whether task and objective ids used in dialogue match the asset data.
+
+## Changes in 0.5.17 `[code]`
+
+`Relay` has a new `preventNPCSceneChange` flag (not saved): when such a relay fires (directly or through delayed outputs) it calls `NPCController.BlockSceneChange` on its parent `NPCController`; the block is released when no delayed output is pending and `SaveController.Loading` is false, or in `OnDisable`. `Relay.delayTrigger` counts pending outputs in try/finally. `output.onEventInvoke` catches exceptions per target.

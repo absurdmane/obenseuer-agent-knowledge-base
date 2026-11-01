@@ -12,7 +12,7 @@ Related: [power-grid.md](power-grid.md), [fuel-heat.md](fuel-heat.md), [crafting
 - `PowerInput` (**saved**) — "the device gets electricity from somewhere". Defaults to `true`.
 - `Powered` getter = `RequiresFuel ? _Fuel.active : PowerInput`. All checks go through it and `IsPowered()`.
 - `OnPowerOn/OnPowerOff/UpdateState` fire `ActOnPowered/ActonUnPowered` and the `onPowered/onUnPowered` Relays.
-- `powerConsumption` (not saved, default 60 since 0.5.13) is the device's draw on its power grid: `PowerBalance => -powerConsumption` (see [power-grid.md](power-grid.md)).
+- `powerConsumption` (not saved, default 60 since 0.5.13) is the device's draw on its power grid: `PowerBalance` (`-powerConsumption`, or the override while `overridePowerConsumption` is set; 0.5.17) (see [power-grid.md](power-grid.md)).
 
 Owners of `_Power`:
 - `CraftingBase` (base of all workstations: `manufacturing`, `manufacturingProcess`, `Generator`, `Growing`, ...).

@@ -70,3 +70,7 @@ Seen in game 0.5.08 (runtime dump, 2026-10-18):
 - All three: `StorageSettings` 'Custom', `AllowedCategories` [], `ForbiddenCategories` [Backpack] (vanilla already forbids a backpack inside a backpack), `disableSpoil` false, `maxSlotStackSize` -1.
 - Inventory slot grid ("Inventory Slot Panel"): cell 69x69, spacing 0, padding l10 r10 t15 b15, UpperLeft, 5 fixed columns, 40 slots (`Inventory.slotAmount` is 40 in the prefab, not the code default 35).
   Its sibling "Not available slots" (placeholder grid) is drawn under it; if the sibling order flips, the placeholders hide the item icons (slots stay clickable).
+
+## Changes in 0.5.17 `[code]`
+
+`BackpackStorage.OpenBackpack` and the close path in `ToggleBackpack` end with `RefreshInventoryNavigation()` (`InventoryNavigationHandler.Instance.RefreshPanels()`: a coroutine waits one frame, clears the other-panel lists and re-runs `InitializeSlotArrays`); `BackpackStorage.Button` is a new property. The hotkey badge handling of `Slot.SetHotKeyNumber`/`OnEnable` changed as described in inventory-storage.md.
