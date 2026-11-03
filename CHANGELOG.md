@@ -2,6 +2,11 @@
 
 One dated entry per update: which notes were added or changed. After a `git pull`, read the newest entries to see what is new.
 
+## 2026-11-03 (update to build 0.5.19)
+
+- Re-checked against build 0.5.19 with the method-level comparison (59 changed types, none added or removed); added a "Changes in 0.5.19" section to `crafting.md` (group values by amount used, `HasPowerForCrafting`), `power-grid.md`, `power.md`, `police-crime.md` (witness target, noise, detection roll), `doors-interaction.md`, `economy.md` (exchange rate), `item-system.md` (Perfect quality, stack quality mixing, readables), `inventory-storage.md`, `combat-npcs.md`, `ui-options-input.md`, `water.md`, `tenement-upgrades.md`; the quality tiers in `item-system.md` and `growing.md` now include Perfect.
+- Data: one recipe renamed; scenes and navigation data changed in the build, not read.
+
 ## 2026-11-01 (update to build 0.5.17)
 
 - Re-checked against build 0.5.17 with the method-level comparison (265 changed types); corrected `power-grid.md` (price and amount settings, billing, cut and restore, idle draw), `power.md`, `economy.md`, `skills.md`, `police-crime.md`, `growing.md`, `crafting.md`, `quick-slots.md`, `animals-collectibles.md`, `inventory-storage.md`, `backpack.md`, `item-system.md`, `doors-interaction.md`, `saves.md`, `tasks-relays.md`, `npc-movement.md`, `player-movement-tiredness-sleep.md`, `water.md`, `ui-options-input.md`, `tenement-upgrades.md`; `power-grid.md` also gained the scene and prefab wiring (which areas, lamps, TVs and switches are on the grid).

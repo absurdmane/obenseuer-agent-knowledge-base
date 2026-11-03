@@ -131,3 +131,7 @@ Pouring liquid out of someone else's storage is theft only without permission no
 ## Changes in 0.5.17 `[code]`
 
 `LiquidStoragePanelUI`: fill and unfill amounts are capped at the output storage's liquid amount (unless infinite) and rounded down with `ItemLiquidData.RoundDownToStep`; a zero amount calls `StopFilling`; the full-container branch is gone; selecting another slot resets `fillingItem`/`unfillingItem` on the storages.
+
+## Changes in 0.5.19 `[code]`
+
+- `LiquidStoragePanelUI`: when the output container holds under one rounding step (`1 / ItemLiquidData.roundValue`) and the take amount would be 0, the step is taken so the remainder can be emptied, and `LiquidAmount` is clamped at 0.

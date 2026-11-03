@@ -34,3 +34,7 @@ Preset values per difficulty (asset data); unit of the restock timer; whether Bi
 ## Changes in 0.5.17 `[code]`
 
 Electricity costs are difficulty settings now (`electricityPrice`, `electricityAmount`, see [power-grid.md](power-grid.md)); the rent-paid step also pays each apartment's utilities (`TenementController.PayUtilities`). The bribe formula changed (see skills.md).
+
+## Changes in 0.5.19 `[code]`
+
+- `Bank.GetExchangeRate(toRM)` is new: the base ratio (`OS_RM_Ratio` for OC to RM, `RM_OS_Ratio` for RM to OC) times `clamp01(supply / daily average spending)` of the target currency (1 when spending is 0). Before, the RM to OC branch tested the RM supply but scaled with the OC supply, and the OC to RM branch compared floats against ints. `Bank.GetMaxExchangeAmount(toRM)` = target supply / rate; `Bank.Exchange` clamps the amount to the player's money and to that maximum (firing `onOutOfFundsRM` or `onOutOfFundsOC` when clamped), pays an integer `amount * rate` and subtracts exactly that from the supply (never below 0). The calculating overload (`round`, `ignorePlayerMoney`) uses the same rate. `BankUI` shows the rate and the maximum.

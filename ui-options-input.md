@@ -31,3 +31,7 @@ Whether `Controls.json` and `Quality.json` are written on every change or only o
 ## Changes in 0.5.17 `[code]`
 
 New key binding "Use Item Secondary" (default Z; `KeyBindingsSave.useItemSecondary`, in the key-binding menu and `ResetKey`). On a controller "Head Use" is a hold of at least 0.5 s (`ControllerHeadUseHoldDuration`; display text "Hold <key>"), a short tap is `GetAuxiliaryReloadDown`. New difficulty settings for electricity are described in [power-grid.md](power-grid.md).
+
+## Changes in 0.5.19 `[code]`
+
+- `InputManager` key names: mouse buttons are "Mouse 4" to "Mouse 7" besides "MMB", and `KeyBindingsMenu` (`ChangeKey`, `OnGUI`) can now bind them to other actions.

@@ -102,3 +102,10 @@ NPCs run one `NPC.Activity` at a time; police use `Act_Police` (not BehaviorDesi
 ## Changes in 0.5.17 `[code]`
 
 `Crime.CalculateBribe` no longer caches the amount or caps it at the OC balance: quality is cached once in the saved `bribeQuality` (`latestBribe` is gone), clamped to [0.24, 1.2], and the amount is `CountCrimes` x (1.2 / quality). `Crime.TryToBribe` takes `(int)CalculateBribe()`; 0 clears the crime, a passed skill check with `CheckMoney` true buys it. `ClearCrime` resets `triedBribe` and `bribeQuality`. `NPCController.SetTargetNode` changed (not read).
+
+## Changes in 0.5.19 `[code]`
+
+- `Witness.IsWitnessed` and `Witness.Witnessed` take a third parameter `GameObject target = null`; `Witness.InteractTarget` is `InteractObjects.instance.currentGameObject`. A witness counts if `NPC_FOV.CheckIfPlayerIsDetected()` or `NPC_FOV.CheckIfObjectIsDetected(target, ignoreCooldown: true)`: the NPC sees the touched object (distance below `maxDistance`, inside `FOV`, ray not blocked by the `fovMasks` layers, then a roll of `Lerp(detectionPropabilityFocus, detectionPropabilityEdge, angle / FOV)`), so stealing right in front of an NPC is noticed even when the player's body is not in view. `ItemOperations`, `Inventory.CheckForAddedStolenItems`, `SlotController.DropItem`, `LiquidStoragePanelUI` and `SpawnItemOnBreak` pass the target; the old two-argument call shape still compiles but a patch that matches the old signature does not find the method.
+- `NPC_FOV.CheckIfPlayerIsDetected` had a bug: `Random.Range(0, 1)` is the integer overload and always 0, so the roll was always true; it is now `Random.Range(0f, 1f)` and detection chance really follows the Lerp of focus and edge probability.
+- `CharacterHeadController.PlayerMadeNoise()` (called from `Inventory.CheckForAddedStolenItems` whenever an item with an owner of 2 or more is added to the player) makes every NPC head within 4 m (2 m when the player crouches) look at the player for 4 s (`HearPlayer`), if its look-at settings allow it.
+- `MeleeWeapon.Hit` on an NPC now also calls `Crime.CallPolice(npc transform, severe: true)`.

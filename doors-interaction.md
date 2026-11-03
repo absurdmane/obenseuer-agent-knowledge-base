@@ -33,3 +33,7 @@ Whether a placed `FurniturePlaceable` is parented to its `FurnitureManager`; whe
 ## Changes in 0.5.17 `[code]`
 
 `InteractObjects.GetInteractable`: a `grow` reaches `Growing.UpdateQuickSlot` only when `grow.IsJustPlanted()`; the `GrowItem` case was removed. `Door.GetClosedDoorway(out center, out normal)` is new (spawn pose or local transform plus the box collider centre) and `Door.ignoreLightZones` was added. Placement types are described in item-system.md.
+
+## Changes in 0.5.19 `[code]`
+
+- `Door` can no longer be locked while open: `UseDoor` on a locked door with `position > 0` (and no `bypassLock`) closes it first (`ToggleInterrupt`), the use message shows "(Close)" while it is locked and open, and `Door.OnMapChanged` calls the new `Door.CloseInstantly()` for a locked door (snaps to the spawn pose, `State.Closed`, fires `onPosition`).

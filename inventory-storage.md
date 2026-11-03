@@ -114,3 +114,7 @@ Valuable, Bottle, Liquid Container; via `CompareCategories`), then name (liquid 
 - `ItemData` drag and drop: new `JoinLiquidToSlot(int)`; drop and return paths join and split liquid stacks and meta (`ItemLiquidData.JoinStack/SplitStack`, `ItemMetaUtilities.SplitMeta`). `ItemOperations.DropItem` sets `itemStack.Meta = ItemMetaUtilities.SplitMeta(...)` before the drop.
 - `InventoryNavigationHandler`: new windows (`BackpackButton`, `StoragePower`, `TaskItems`); the View button (356) toggles the equipped backpack, the right trigger and "Use Item Secondary" call `ItemInfo.UseItemSecondary`, stick input switches to controller, LT shows stat value labels; the tenement overview/yard/basement/roof panel fields are gone. `ItemsUIPanel` has a keyboard/controller navigation API (`SelectFirstForNavigation`, `MoveNavigation`, `ActivateNavigationSelection`, `ClearNavigation`).
 - `StorageModelController`: new `CollectableItemModels` (default false keeps the old behaviour; when true the models keep colliders and `CollectibleItem.onCollect` calls `TakeFromStorage`); `StorageModelControllerSpot.animatorBools` sets Animator bools on the model.
+
+## Changes in 0.5.19 `[code]`
+
+- Adding items into a stack mixes the stack's quality by amount (`ItemStack.MixStackQuality`, see `item-system.md`). `Inventory.CheckForAddedStolenItems` calls `CharacterHeadController.PlayerMadeNoise()` for owned items (see `police-crime.md`).

@@ -86,3 +86,7 @@ Building electricity now sets the capacity of the tenement's main power grid and
 ## Changes in 0.5.17 `[code]`
 
 Upgrading a room can now take furniture out of it: `TenementUpgradeCleanupArea` ([power-grid.md](power-grid.md) describes it); `TenementGeneralPrefabInfo.RefreshConnections()` is new and the active state per object is OR-ed over all connections. `TenementController.GetGeneralUpgradeName/GetApartmentUpgradeName` and `...Progress` map categories to display names and `TenementUpgradeProgress`.
+
+## Changes in 0.5.19 `[code]`
+
+- `TenementUpgradeCleanupArea` no longer treats an item that is part of an `Animal` as junk to clear.

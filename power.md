@@ -161,3 +161,7 @@ Room membership without parenting: `FurnitureManager.ContainsFurnitureGameObject
 - Since 0.5.13 a grid exists in code (`PowerGrid`, `PowerMeter`, `PowerGridsController`); which scene objects carry them is asset data. `BlackoutTrigger` remains a player sleep/blackout event.
 
 Mod guidance: to gate a device by room power, postfix `PowerSource.get_Powered` (electric, non-fuel only) or `CraftingBase.PoweredAndActive`, then call the public `CraftingBase.PowerOut()`/`PowerOn()` on each device after a change; `PowerSource.UpdateState` only runs relays and sounds, not the device hooks. Do not write `PowerInput` for a room effect: it is saved, and the flag (not `Type`) decides (some combustion devices have `true`, some electric ones `false`). Since 0.5.13 the game writes it too (`PowerSource.JoinGrid`/`SyncWithGrid` set it from the grid), so a flag you write is overwritten.
+
+## Changes in 0.5.19 `[code]`
+
+- `manufacturing.Craft` uses `CraftingBase.HasPowerForCrafting()` for the capacity check; see `crafting.md`.

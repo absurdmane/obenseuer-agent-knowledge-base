@@ -101,7 +101,7 @@ Something else resets the factor to 1 via `SetSpeedFactor(1f)`: `Crime`, `manufa
 
 - Harvested items get `ItemQualityData.quality` (0.05..2) from `CraftingBase.ApplySkillQuality` → `PlayerStats.SkillQuality`
   (Farming skill × sobriety × (1 − failChance) × equipment quality, plus Gaussian noise σ 0.2). Same for `GrowItem.GetItem`,
-  `grow.SetMetaValues` and `Growing.CreateItems`. Tiers: `ItemQualityData.GetQuality` (<0.25 Crap, <0.5 Poor, <0.75 Bad, <1.25 Okay, <1.5 Good, <1.75 Fine, else Excellent).
+  `grow.SetMetaValues` and `Growing.CreateItems`. Tiers: `ItemQualityData.GetQuality` (<0.25 Crap, <0.5 Poor, <0.75 Bad, <1.25 Okay, <1.5 Good, <1.75 Fine, <1.999 Excellent, else Perfect).
 - Freshness is `ItemPerishabledata.integrity` (0..1).
 - Stacking: solid items merge only within the same quality tier (`ItemMetaUtilities.QualityMatch`) and integrity within 0.025
   (`CompareItemMetas`).

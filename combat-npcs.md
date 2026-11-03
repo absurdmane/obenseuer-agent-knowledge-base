@@ -52,3 +52,7 @@ Searched the Addressables bundles (`find_names.py`) for infect/zombie/shroom/fun
 - Own spawns: instantiate your own objects outside any `Spawner`/`NPCData` so nothing about them is saved; destroy them on `OnMapChanging` (same pattern as `AnimalController`), re-create near the player on `OnMapChanged` if wanted. That keeps saves clean when the mod is removed.
 - A simple enemy needs: a model + A* agent (`IAstarAI`/`AIPath`) or your own NavMesh movement, a chase loop like `Act_Robber.AggroPlayer`, and damage through `PlayerStats.instance.health.Damage(x, DamageTypeNames.Violence)` (not `PlayerStats.Damage`). Player death handling is done by the game.
 - To make humans killable you would have to add your own health (no vanilla model): patch/replace `MeleeWeapon.Hit` behaviour or add a collider component implementing `IDamageReceiver` to your own NPC; vanilla humans keep the crime/bark reactions.
+
+## Changes in 0.5.19 `[code]`
+
+- Melee hits on NPCs call `Crime.CallPolice(..., severe: true)`; witness checks take the touched object as a target (see `police-crime.md`).
